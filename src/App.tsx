@@ -9,28 +9,62 @@ import Positions from './screens/Positions/index';
 import Debts from './screens/Debts/index';
 import Settings from './screens/Settings/index';
 
-function LoginScreen() {
-  const handleLoginClick = () => {
-    netlifyIdentity.open();
+function LoginScreen({ onLogin }: { onLogin: (email: string, password: string) => void }) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password) return;
+    setLoading(true);
+    setError('');
+    onLogin(email, password);
   };
 
   return (
-    <div style={{ minHeight: '100dvh', background: '#0a0a1a', paddingTop: '20vh', paddingLeft: 20, paddingRight: 20, paddingBottom: 40 }}>
-      <div style={{ width: '100%', maxWidth: 320, margin: '0 auto', textAlign: 'center' }}>
-        <div style={{ width: 80, height: 80, margin: '0 auto 24px', borderRadius: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #141428 0%, #1a1a36 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
-          <span style={{ fontSize: 32, fontWeight: 700, color: '#b8b2f0' }}>H</span>
+    <div className="min-h-screen bg-[#0a0a1a] flex items-center justify-center p-6">
+      <div className="w-full max-w-sm">
+        <div className="w-20 h-20 mx-auto mb-6 rounded-3xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #141428 0%, #1a1a36 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
+          <span className="text-3xl font-bold text-[#b8b2f0]">H</span>
         </div>
-        <h1 style={{ fontSize: 24, fontWeight: 700, color: '#e2e2ff', letterSpacing: '-0.01em', margin: '0 0 8px' }}>Haushalt</h1>
-        <p style={{ fontSize: 14, color: '#555577', marginBottom: 40, lineHeight: 1.5 }}>
-          Deine persönliche Finanzübersicht
-        </p>
+        <h1 className="text-2xl font-bold text-[#e2e2ff] mb-2 text-center tracking-tight">Haushalt</h1>
+        <p className="text-sm text-[#555577] mb-8 text-center">Deine persönliche Finanzübersicht</p>
 
-        <button
-          onClick={handleLoginClick}
-          style={{ fontSize: 14, fontWeight: 600, padding: '14px 0', borderRadius: 12, color: '#fff', border: 'none', background: 'linear-gradient(135deg, #7c6fe0 0%, #9b8ff0 100%)', boxShadow: '0 8px 24px rgba(124, 111, 224, 0.3)' }}
-        >
-          Anmelden
-        </button>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-xs text-[#555577] mb-1.5 ml-1">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full bg-[#0e0e20] border border-[#1a1a3a] rounded-xl px-4 py-3 text-[#e2e2ff] text-base focus:outline-none focus:border-[#7c6fe0]"
+              autoCapitalize="none"
+              autoCorrect="off"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-xs text-[#555577] mb-1.5 ml-1">Passwort</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full bg-[#0e0e20] border border-[#1a1a3a] rounded-xl px-4 py-3 text-[#e2e2ff] text-base focus:outline-none focus:border-[#7c6fe0]"
+              required
+            />
+          </div>
+          {error && <p className="text-xs text-red-400">{error}</p>}
+          <button
+            type="submit"
+            disabled={loading || !email || !password}
+            className="w-full py-3.5 rounded-xl text-white font-semibold text-sm disabled:opacity-50"
+            style={{ background: 'linear-gradient(135deg, #7c6fe0 0%, #9b8ff0 100%)' }}
+          >
+            {loading ? 'Anmelden...' : 'Anmelden'}
+          </button>
+        </form>
       </div>
     </div>
   );
@@ -69,25 +103,28 @@ function App() {
       setLoading(false);
     }
 
-    netlifyIdentity.on('login', (u) => {
-      if (u) {
-        const userData = {
-          id: u.id,
-          name: u.user_metadata?.full_name || u.email?.split('@')[0] || 'User',
-          email: u.email || '',
-        };
-        setUser(userData);
-        setLoading(true);
-        initUser(u.id, u.email || '', userData.name);
-      }
-      netlifyIdentity.close();
-    });
-
     netlifyIdentity.on('logout', () => {
       setUser(null);
       localStorage.removeItem('gotrue.user');
     });
   }, []);
+
+  const handleLogin = async (email: string, password: string) => {
+    try {
+      const user = await (netlifyIdentity as any).auth.login(email, password, true);
+      const userData = {
+        id: user.id,
+        name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+        email: user.email || '',
+      };
+      setUser(userData);
+      setLoading(true);
+      await initUser(user.id, user.email || '', userData.name);
+    } catch (err) {
+      console.error('Login error:', err);
+      alert('Login fehlgeschlagen: ' + ((err as Error)?.message || 'Unbekannter Fehler'));
+    }
+  };
 
   if (isLoading) {
     return (
@@ -103,7 +140,7 @@ function App() {
   }
 
   if (!user) {
-    return <LoginScreen />;
+    return <LoginScreen onLogin={handleLogin} />;
   }
 
   return (
