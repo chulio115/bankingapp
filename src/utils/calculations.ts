@@ -1,15 +1,25 @@
 import type { Income, Expense, CategoryConfig } from '../types/finance';
 
+function isInMonth(itemMonth: string, isRecurring: boolean | undefined, viewMonth: string): boolean {
+  if (itemMonth === viewMonth) return true;
+  if (isRecurring && itemMonth <= viewMonth) return true;
+  return false;
+}
+
+export function incomesForMonth(incomes: Income[], month: string): Income[] {
+  return incomes.filter((i) => isInMonth(i.month, i.isRecurring, month));
+}
+
+export function expensesForMonth(expenses: Expense[], month: string): Expense[] {
+  return expenses.filter((e) => isInMonth(e.month, e.isRecurring, month));
+}
+
 export function totalIncome(incomes: Income[], month: string): number {
-  return incomes
-    .filter((i) => i.month === month)
-    .reduce((sum, i) => sum + i.amount, 0);
+  return incomesForMonth(incomes, month).reduce((sum, i) => sum + i.amount, 0);
 }
 
 export function totalExpenses(expenses: Expense[], month: string): number {
-  return expenses
-    .filter((e) => e.month === month)
-    .reduce((sum, e) => sum + e.amount, 0);
+  return expensesForMonth(expenses, month).reduce((sum, e) => sum + e.amount, 0);
 }
 
 export function freeMoney(incomes: Income[], expenses: Expense[], month: string): number {
@@ -21,11 +31,9 @@ export function sumByCategory(
   month: string,
 ): Record<string, number> {
   const result: Record<string, number> = {};
-  expenses
-    .filter((e) => e.month === month)
-    .forEach((e) => {
-      result[e.category] = (result[e.category] || 0) + e.amount;
-    });
+  expensesForMonth(expenses, month).forEach((e) => {
+    result[e.category] = (result[e.category] || 0) + e.amount;
+  });
   return result;
 }
 

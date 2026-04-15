@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import Modal from '../../components/ui/Modal';
 import { useFinanceStore } from '../../store/useFinanceStore';
-import { generateId } from '../../utils/formatters';
+import { generateId, formatMonthShort, getAdjacentMonth } from '../../utils/formatters';
 import type { Income, Expense, DebtDetails } from '../../types/finance';
 
 type PositionType = 'income' | 'expense';
@@ -20,6 +20,7 @@ export default function PositionModal({ isOpen, onClose, editItem }: PositionMod
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('abo');
   const [isRecurring, setIsRecurring] = useState(false);
+  const [targetMonth, setTargetMonth] = useState(currentMonth);
   const [notes, setNotes] = useState('');
   const [debtDetails, setDebtDetails] = useState<DebtDetails>({
     totalAmount: 0,
@@ -38,6 +39,7 @@ export default function PositionModal({ isOpen, onClose, editItem }: PositionMod
       setName(editItem.name);
       setAmount(String(editItem.amount));
       setNotes(editItem.notes || '');
+      setTargetMonth(editItem.month);
       if (editItem.type === 'income') {
         setIsRecurring((editItem as Income).isRecurring || false);
       } else {
@@ -54,6 +56,7 @@ export default function PositionModal({ isOpen, onClose, editItem }: PositionMod
       setAmount('');
       setCategory('abo');
       setIsRecurring(false);
+      setTargetMonth(currentMonth);
       setNotes('');
       setDebtDetails({
         totalAmount: 0,
@@ -66,7 +69,7 @@ export default function PositionModal({ isOpen, onClose, editItem }: PositionMod
         contactName: '',
       });
     }
-  }, [editItem, isOpen]);
+  }, [editItem, isOpen, currentMonth]);
 
   const handleSave = async () => {
     const parsedAmount = parseFloat(amount.replace(',', '.'));
@@ -77,7 +80,7 @@ export default function PositionModal({ isOpen, onClose, editItem }: PositionMod
         id: editItem?.id || generateId(),
         name: name.trim(),
         amount: parsedAmount,
-        month: currentMonth,
+        month: isRecurring ? currentMonth : targetMonth,
         isRecurring: isRecurring || undefined,
         notes: notes.trim() || undefined,
       };
@@ -89,7 +92,7 @@ export default function PositionModal({ isOpen, onClose, editItem }: PositionMod
         name: name.trim(),
         amount: parsedAmount,
         category,
-        month: currentMonth,
+        month: isRecurring ? currentMonth : targetMonth,
         isRecurring,
         notes: notes.trim() || undefined,
         debtDetails: category === 'schulden' ? debtDetails : undefined,
@@ -188,6 +191,28 @@ export default function PositionModal({ isOpen, onClose, editItem }: PositionMod
           <input type="checkbox" checked={isRecurring} onChange={(e) => setIsRecurring(e.target.checked)} style={{ position: 'absolute', opacity: 0, width: 0, height: 0 }} />
           <span style={{ fontSize: 14, color: '#c0c0dd' }}>Wiederkehrend (monatlich)</span>
         </label>
+
+        {/* Monat — nur bei Einmal-Positionen */}
+        {!isRecurring && (
+          <div>
+            <label style={labelStyle}>Monat</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <button
+                type="button"
+                onClick={() => setTargetMonth(getAdjacentMonth(targetMonth, -1))}
+                style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(255,255,255,0.05)', color: '#666688', border: 'none', fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >‹</button>
+              <div style={{ flex: 1, textAlign: 'center', fontSize: 15, color: '#e2e2ff', fontWeight: 500 }}>
+                {formatMonthShort(targetMonth)}
+              </div>
+              <button
+                type="button"
+                onClick={() => setTargetMonth(getAdjacentMonth(targetMonth, 1))}
+                style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(255,255,255,0.05)', color: '#666688', border: 'none', fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >›</button>
+            </div>
+          </div>
+        )}
 
         {/* Schulden-Details — nur bei Kategorie "schulden" */}
         {type === 'expense' && category === 'schulden' && (

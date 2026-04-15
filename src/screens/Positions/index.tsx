@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useFinanceStore } from '../../store/useFinanceStore';
 import { formatEuro } from '../../utils/formatters';
+import { incomesForMonth, expensesForMonth } from '../../utils/calculations';
 import FAB from '../../components/layout/FAB';
 import EmptyState from '../../components/ui/EmptyState';
 import Badge from '../../components/ui/Badge';
@@ -16,11 +17,11 @@ export default function Positions() {
   const [editItem, setEditItem] = useState<((Income | Expense) & { type: 'income' | 'expense' }) | undefined>();
 
   const monthIncomes = useMemo(
-    () => incomes.filter((i) => i.month === currentMonth),
+    () => incomesForMonth(incomes, currentMonth),
     [incomes, currentMonth],
   );
   const monthExpenses = useMemo(
-    () => expenses.filter((e) => e.month === currentMonth),
+    () => expensesForMonth(expenses, currentMonth),
     [expenses, currentMonth],
   );
 
