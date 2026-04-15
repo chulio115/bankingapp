@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import netlifyIdentity from 'netlify-identity-widget';
 import { useAuthStore } from './store/useAuthStore';
 import { useFinanceStore } from './store/useFinanceStore';
-import { ensureUser } from './lib/db';
+import { ensureUser, hasNeon } from './lib/db';
 import BottomNav from './components/layout/BottomNav';
 import Overview from './screens/Overview/index';
 import Positions from './screens/Positions/index';
@@ -40,6 +40,7 @@ function App() {
   const { user, setUser, isLoading, setLoading } = useAuthStore();
   const loadData = useFinanceStore((state) => state.loadData);
   const [activeTab, setActiveTab] = useState('overview');
+  const [dbError, setDbError] = useState<string | null>(null);
 
   useEffect(() => {
     const existingUser = netlifyIdentity.currentUser();
@@ -54,7 +55,8 @@ function App() {
         .then(() => loadData(existingUser.id))
         .then(() => setLoading(false))
         .catch((err) => {
-          console.error('Error loading data for existing user:', err);
+          console.error('DB Error (existing user):', err);
+          setDbError(String(err?.message || err));
           setLoading(false);
         });
     }
@@ -71,7 +73,8 @@ function App() {
           .then(() => loadData(u.id))
           .then(() => setLoading(false))
           .catch((err) => {
-            console.error('Error loading data after login:', err);
+            console.error('DB Error (login):', err);
+            setDbError(String(err?.message || err));
             setLoading(false);
           });
       } else {
@@ -97,7 +100,8 @@ function App() {
           .then(() => loadData(u.id))
           .then(() => setLoading(false))
           .catch((err) => {
-            console.error('Error loading data after close:', err);
+            console.error('DB Error (close):', err);
+            setDbError(String(err?.message || err));
             setLoading(false);
           });
       } else {
@@ -133,6 +137,21 @@ function App() {
 
   return (
     <div className="app-shell">
+      {!hasNeon && (
+        <div style={{ background: '#F0997B22', border: '1px solid #F0997B44', borderRadius: 10, margin: '12px 16px 0', padding: '10px 14px', fontSize: 12, color: '#F0997B' }}>
+          ⚠️ Keine DB-Verbindung – VITE_NEON_DATABASE_URL fehlt
+        </div>
+      )}
+      {hasNeon && dbError && (
+        <div style={{ background: '#F0997B22', border: '1px solid #F0997B44', borderRadius: 10, margin: '12px 16px 0', padding: '10px 14px', fontSize: 11, color: '#F0997B', wordBreak: 'break-all' }}>
+          ⚠️ DB-Fehler: {dbError}
+        </div>
+      )}
+      {hasNeon && !dbError && (
+        <div style={{ background: 'rgba(93,202,165,0.08)', border: '1px solid rgba(93,202,165,0.2)', borderRadius: 10, margin: '12px 16px 0', padding: '8px 14px', fontSize: 11, color: '#5DCAA5', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span>●</span> Verbunden mit Neon DB
+        </div>
+      )}
       {activeTab === 'overview' && <Overview />}
       {activeTab === 'positions' && <Positions />}
       {activeTab === 'debts' && <Debts />}
