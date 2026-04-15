@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useFinanceStore } from '../../store/useFinanceStore';
 import { formatMonthShort, getAdjacentMonth } from '../../utils/formatters';
-import PageHeader from '../../components/layout/PageHeader';
 import Badge from '../../components/ui/Badge';
 import Modal from '../../components/ui/Modal';
 import type { CategoryConfig } from '../../types/finance';
@@ -63,36 +62,29 @@ export default function Settings() {
     setShowAddCat(false);
   };
 
-  const sectionLabel = 'text-[11px] text-[#555577] uppercase tracking-[0.12em] font-semibold mb-3';
-
   return (
-    <div className="px-5 pt-6 pb-32">
-      <PageHeader title="Einstellungen" />
+    <div style={{ padding: '16px 20px 120px' }}>
+      <h1 style={{ fontSize: 22, fontWeight: 700, color: '#e2e2ff', marginBottom: 24, letterSpacing: '-0.01em' }}>Einstellungen</h1>
 
       {/* Profil */}
-      <div className="mb-6">
-        <div className={sectionLabel}>Profil</div>
-        <div className="flex items-center justify-between py-3 px-4 bg-[#141428] border border-white/[0.06] rounded-2xl">
-          <span className="text-sm text-[#e2e2ff] font-semibold">{user?.name || 'User'}</span>
-          <span className="text-xs text-[#666688]">{user?.email || ''}</span>
+      <div style={{ marginBottom: 20 }}>
+        <div style={{ fontSize: 11, color: '#555577', textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: 600, marginBottom: 10 }}>Profil</div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', background: '#141428', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16 }}>
+          <span style={{ fontSize: 14, color: '#e2e2ff', fontWeight: 600 }}>{user?.name || 'User'}</span>
+          <span style={{ fontSize: 12, color: '#666688' }}>{user?.email || ''}</span>
         </div>
       </div>
 
       {/* Kategorien */}
-      <div className="border-t border-white/[0.04] pt-5 mb-6">
-        <div className={sectionLabel}>Kategorien</div>
-        <div className="flex flex-wrap gap-2">
+      <div style={{ marginBottom: 20, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+        <div style={{ fontSize: 11, color: '#555577', textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: 600, marginBottom: 10 }}>Kategorien</div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
           {categories.map((cat) => (
-            <Badge
-              key={cat.id}
-              label={cat.label}
-              bgColor={cat.bgColor}
-              textColor={cat.textColor}
-            />
+            <Badge key={cat.id} label={cat.label} bgColor={cat.bgColor} textColor={cat.textColor} />
           ))}
           <button
             onClick={() => setShowAddCat(true)}
-            className="inline-flex items-center text-[11px] font-medium px-2.5 py-1 rounded-lg border border-dashed border-white/[0.1] text-[#555577] hover:border-white/[0.2] hover:text-[#888899]"
+            style={{ display: 'inline-flex', alignItems: 'center', fontSize: 11, fontWeight: 500, padding: '5px 10px', borderRadius: 8, border: '1px dashed rgba(255,255,255,0.1)', color: '#555577', background: 'none', cursor: 'pointer' }}
           >
             + Neu
           </button>
@@ -100,56 +92,46 @@ export default function Settings() {
       </div>
 
       {/* Monat */}
-      <div className="border-t border-white/[0.04] pt-5 mb-6">
-        <div className={sectionLabel}>Monat</div>
-        <div className="flex items-center justify-between py-3 px-4 bg-[#141428] border border-white/[0.06] rounded-2xl">
-          <span className="text-sm text-[#e2e2ff] font-semibold">
-            {formatMonthShort(currentMonth)}
-          </span>
-          <div className="flex items-center gap-1">
+      <div style={{ marginBottom: 20, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+        <div style={{ fontSize: 11, color: '#555577', textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: 600, marginBottom: 10 }}>Monat</div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', background: '#141428', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16 }}>
+          <span style={{ fontSize: 14, color: '#e2e2ff', fontWeight: 600 }}>{formatMonthShort(currentMonth)}</span>
+          <div style={{ display: 'flex', gap: 4 }}>
             <button
               onClick={() => setCurrentMonth(getAdjacentMonth(currentMonth, -1))}
-              className="w-8 h-8 flex items-center justify-center rounded-xl bg-white/[0.04] text-[#666688] hover:bg-white/[0.08] text-sm"
-            >
-              ←
-            </button>
+              style={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 10, background: 'rgba(255,255,255,0.04)', color: '#666688', border: 'none', fontSize: 14, cursor: 'pointer' }}
+            >←</button>
             <button
               onClick={() => setCurrentMonth(getAdjacentMonth(currentMonth, 1))}
-              className="w-8 h-8 flex items-center justify-center rounded-xl bg-white/[0.04] text-[#666688] hover:bg-white/[0.08] text-sm"
-            >
-              →
-            </button>
+              style={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 10, background: 'rgba(255,255,255,0.04)', color: '#666688', border: 'none', fontSize: 14, cursor: 'pointer' }}
+            >→</button>
           </div>
         </div>
       </div>
 
       {/* Daten */}
-      <div className="border-t border-white/[0.04] pt-5 mb-6">
-        <div className={sectionLabel}>Daten</div>
+      <div style={{ marginBottom: 20, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+        <div style={{ fontSize: 11, color: '#555577', textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: 600, marginBottom: 10 }}>Daten</div>
         <button
           onClick={handleExport}
-          className="flex items-center justify-between w-full py-3.5 px-4 bg-[#141428] border border-white/[0.06] rounded-2xl hover:border-white/[0.1] transition-colors"
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '14px 16px', background: '#141428', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16, cursor: 'pointer' }}
         >
-          <span className="text-sm text-[#e2e2ff] font-medium">Export als JSON</span>
+          <span style={{ fontSize: 14, color: '#e2e2ff', fontWeight: 500 }}>Export als JSON</span>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#666688" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-            <polyline points="7 10 12 15 17 10" />
-            <line x1="12" y1="15" x2="12" y2="3" />
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
           </svg>
         </button>
       </div>
 
       {/* Abmelden */}
-      <div className="border-t border-white/[0.04] pt-5">
+      <div style={{ paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.04)' }}>
         <button
           onClick={handleLogout}
-          className="flex items-center justify-between w-full py-3.5 px-4 rounded-2xl border border-[#F0997B]/10 hover:bg-[#F0997B]/5 transition-colors"
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '14px 16px', borderRadius: 16, border: '1px solid rgba(240,153,123,0.12)', background: 'none', cursor: 'pointer' }}
         >
-          <span className="text-sm text-[#e2e2ff] font-medium">Abmelden</span>
+          <span style={{ fontSize: 14, color: '#e2e2ff', fontWeight: 500 }}>Abmelden</span>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F0997B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-            <polyline points="16 17 21 12 16 7" />
-            <line x1="21" y1="12" x2="9" y2="12" />
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" />
           </svg>
         </button>
       </div>

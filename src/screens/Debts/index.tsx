@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useFinanceStore } from '../../store/useFinanceStore';
-import PageHeader from '../../components/layout/PageHeader';
 import EmptyState from '../../components/ui/EmptyState';
 import Modal from '../../components/ui/Modal';
 import DebtCard from './DebtCard';
@@ -23,15 +22,11 @@ export default function Debts() {
   }, []);
 
   return (
-    <div className="px-5 pt-6 pb-32">
-      <PageHeader
-        title="Schulden"
-        right={
-          <span className="text-xs text-[#555577] font-medium">
-            {uniqueDebts.length} aktiv
-          </span>
-        }
-      />
+    <div style={{ padding: '16px 20px 120px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+        <h1 style={{ fontSize: 22, fontWeight: 700, color: '#e2e2ff', letterSpacing: '-0.01em', margin: 0 }}>Schulden</h1>
+        <span style={{ fontSize: 12, color: '#555577', fontWeight: 500 }}>{uniqueDebts.length} aktiv</span>
+      </div>
 
       {uniqueDebts.length === 0 ? (
         <EmptyState message="Keine Schulden vorhanden." />

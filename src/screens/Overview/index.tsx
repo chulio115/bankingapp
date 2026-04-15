@@ -18,46 +18,39 @@ export default function Overview() {
   const isPositive = free >= 0;
 
   return (
-    <div className="px-5 pt-6 pb-32">
+    <div style={{ padding: '16px 20px 120px' }}>
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-3">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <button
             onClick={() => setCurrentMonth(getAdjacentMonth(currentMonth, -1))}
-            className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/[0.05] text-[#666688] hover:bg-white/[0.08] active:bg-white/[0.1] text-base"
-          >
-            ‹
-          </button>
-          <h1 className="text-xl font-bold text-[#e2e2ff] tracking-tight px-1">
+            style={{ width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 10, background: 'rgba(255,255,255,0.05)', color: '#666688', border: 'none', fontSize: 16, cursor: 'pointer' }}
+          >‹</button>
+          <h1 style={{ fontSize: 20, fontWeight: 700, color: '#e2e2ff', letterSpacing: '-0.01em', margin: 0 }}>
             {formatMonthShort(currentMonth)}
           </h1>
           <button
             onClick={() => setCurrentMonth(getAdjacentMonth(currentMonth, 1))}
-            className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/[0.05] text-[#666688] hover:bg-white/[0.08] active:bg-white/[0.1] text-base"
-          >
-            ›
-          </button>
+            style={{ width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 10, background: 'rgba(255,255,255,0.05)', color: '#666688', border: 'none', fontSize: 16, cursor: 'pointer' }}
+          >›</button>
         </div>
-        <span className="text-xs text-[#555577] font-medium tracking-wide uppercase">Übersicht</span>
+        <span style={{ fontSize: 11, color: '#555577', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Übersicht</span>
       </div>
 
       {/* Freies Geld Banner */}
       <div
-        className="rounded-2xl p-6 mb-6 text-center border"
         style={{
+          borderRadius: 16, padding: '20px 16px', marginBottom: 20, textAlign: 'center',
           background: isPositive
             ? 'linear-gradient(135deg, rgba(93,202,165,0.1) 0%, rgba(93,202,165,0.03) 100%)'
             : 'linear-gradient(135deg, rgba(240,153,123,0.1) 0%, rgba(240,153,123,0.03) 100%)',
-          borderColor: isPositive ? 'rgba(93,202,165,0.18)' : 'rgba(240,153,123,0.18)',
+          border: `1px solid ${isPositive ? 'rgba(93,202,165,0.18)' : 'rgba(240,153,123,0.18)'}`,
         }}
       >
-        <div className="text-xs text-[#666688] font-medium tracking-wide mb-2 uppercase">
+        <div style={{ fontSize: 11, color: '#666688', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>
           Freies Geld
         </div>
-        <div
-          className="text-3xl font-bold tracking-tight"
-          style={{ color: isPositive ? '#5DCAA5' : '#F0997B' }}
-        >
+        <div style={{ fontSize: 28, fontWeight: 700, color: isPositive ? '#5DCAA5' : '#F0997B', letterSpacing: '-0.02em' }}>
           {isPositive ? '+ ' : ''}{formatEuro(free)}
         </div>
       </div>
@@ -74,46 +67,25 @@ export default function Overview() {
           )}
 
           {/* Income / Expense Stats */}
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <div
-              className="rounded-2xl p-5 border"
-              style={{
-                background: 'linear-gradient(135deg, rgba(93,202,165,0.08) 0%, rgba(93,202,165,0.02) 100%)',
-                borderColor: 'rgba(93,202,165,0.15)',
-              }}
-            >
-              <div className="text-lg font-bold text-[#5DCAA5] tracking-tight">
-                {formatEuro(income)}
-              </div>
-              <div className="text-xs text-[#666688] mt-1.5 font-medium">Einnahmen</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
+            <div style={{ borderRadius: 16, padding: '16px 14px', background: 'linear-gradient(135deg, rgba(93,202,165,0.08) 0%, rgba(93,202,165,0.02) 100%)', border: '1px solid rgba(93,202,165,0.15)' }}>
+              <div style={{ fontSize: 17, fontWeight: 700, color: '#5DCAA5', letterSpacing: '-0.01em' }}>{formatEuro(income)}</div>
+              <div style={{ fontSize: 12, color: '#666688', marginTop: 4, fontWeight: 500 }}>Einnahmen</div>
             </div>
-            <div
-              className="rounded-2xl p-5 border"
-              style={{
-                background: 'linear-gradient(135deg, rgba(240,153,123,0.08) 0%, rgba(240,153,123,0.02) 100%)',
-                borderColor: 'rgba(240,153,123,0.15)',
-              }}
-            >
-              <div className="text-lg font-bold text-[#F0997B] tracking-tight">
-                {formatEuro(expense)}
-              </div>
-              <div className="text-xs text-[#666688] mt-1.5 font-medium">Ausgaben</div>
+            <div style={{ borderRadius: 16, padding: '16px 14px', background: 'linear-gradient(135deg, rgba(240,153,123,0.08) 0%, rgba(240,153,123,0.02) 100%)', border: '1px solid rgba(240,153,123,0.15)' }}>
+              <div style={{ fontSize: 17, fontWeight: 700, color: '#F0997B', letterSpacing: '-0.01em' }}>{formatEuro(expense)}</div>
+              <div style={{ fontSize: 12, color: '#666688', marginTop: 4, fontWeight: 500 }}>Ausgaben</div>
             </div>
           </div>
 
           {/* Category Badges */}
-          <div className="flex flex-wrap gap-2.5">
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
             {Object.entries(categorySums).map(([catId, sum]) => {
               const cat = categories.find((c) => c.id === catId);
               return (
                 <span
                   key={catId}
-                  className="inline-flex items-center text-xs font-medium rounded-xl px-3 py-2 border"
-                  style={{
-                    backgroundColor: cat?.bgColor || '#1a1a2e',
-                    color: cat?.textColor || '#666688',
-                    borderColor: `${cat?.textColor || '#666688'}18`,
-                  }}
+                  style={{ display: 'inline-flex', alignItems: 'center', fontSize: 12, fontWeight: 500, borderRadius: 10, padding: '6px 12px', backgroundColor: cat?.bgColor || '#1a1a2e', color: cat?.textColor || '#666688', border: `1px solid ${cat?.textColor || '#666688'}18` }}
                 >
                   {cat?.label || catId} {formatEuro(sum)}
                 </span>

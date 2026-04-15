@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useFinanceStore } from '../../store/useFinanceStore';
 import { formatEuro } from '../../utils/formatters';
-import PageHeader from '../../components/layout/PageHeader';
 import FAB from '../../components/layout/FAB';
 import EmptyState from '../../components/ui/EmptyState';
 import Badge from '../../components/ui/Badge';
@@ -61,18 +60,16 @@ export default function Positions() {
   ];
 
   return (
-    <div className="px-5 pt-6 pb-32">
-      <PageHeader
-        title="Alle Positionen"
-        right={
-          <button
-            onClick={handleAdd}
-            className="text-sm text-[#b8b2f0] font-semibold hover:text-[#d0ccf8]"
-          >
-            + Neu
-          </button>
-        }
-      />
+    <div style={{ padding: '16px 20px 120px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+        <h1 style={{ fontSize: 22, fontWeight: 700, color: '#e2e2ff', letterSpacing: '-0.01em', margin: 0 }}>Alle Positionen</h1>
+        <button
+          onClick={handleAdd}
+          style={{ fontSize: 14, color: '#b8b2f0', fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer' }}
+        >
+          + Neu
+        </button>
+      </div>
 
       <div className="flex gap-2 overflow-x-auto pb-4 mb-2 scrollbar-hide">
         {filterTabs.map((tab) => (
