@@ -21,7 +21,6 @@ body {
   color: #e2e2ff;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overscroll-behavior: none;
   line-height: 1.5;
 }
 
