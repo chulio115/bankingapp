@@ -39,9 +39,16 @@ function App() {
   const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
-    netlifyIdentity.init();
+    const existingUser = netlifyIdentity.currentUser();
+    if (existingUser) {
+      setUser({
+        name: existingUser.user_metadata?.full_name || existingUser.email?.split('@')[0] || 'User',
+        email: existingUser.email || '',
+      });
+      setLoading(false);
+    }
 
-    const handleLogin = (u: netlifyIdentity.User | undefined) => {
+    netlifyIdentity.on('login', (u) => {
       if (u) {
         setUser({
           name: u.user_metadata?.full_name || u.email?.split('@')[0] || 'User',
@@ -50,34 +57,30 @@ function App() {
       }
       setLoading(false);
       netlifyIdentity.close();
-    };
+    });
 
-    const handleLogout = () => {
+    netlifyIdentity.on('logout', () => {
       setUser(null);
-    };
+    });
 
-    netlifyIdentity.on('login', handleLogin);
-    netlifyIdentity.on('logout', handleLogout);
-    // netlify-identity-widget emits 'init' but types don't include it
-    (netlifyIdentity as unknown as { on: (event: string, cb: (u?: netlifyIdentity.User) => void) => void })
-      .on('init', (u?: netlifyIdentity.User) => {
-        if (u) {
-          setUser({
-            name: u.user_metadata?.full_name || u.email?.split('@')[0] || 'User',
-            email: u.email || '',
-          });
-        }
-        setLoading(false);
-      });
+    netlifyIdentity.on('close', () => {
+      const u = netlifyIdentity.currentUser();
+      if (u) {
+        setUser({
+          name: u.user_metadata?.full_name || u.email?.split('@')[0] || 'User',
+          email: u.email || '',
+        });
+      }
+      setLoading(false);
+    });
 
-    // Fallback: if init doesn't fire (e.g. no Netlify backend in local dev), stop loading after 2s
-    const timeout = setTimeout(() => setLoading(false), 2000);
-
-    return () => {
-      clearTimeout(timeout);
-      netlifyIdentity.off('login', handleLogin);
-      netlifyIdentity.off('logout', handleLogout);
-    };
+    // init AFTER setting up event handlers — will NOT auto-open if user already resolved above
+    if (!existingUser) {
+      netlifyIdentity.init();
+      // Fallback: if init doesn't fire (e.g. no Netlify backend in local dev), stop loading after 2s
+      const timeout = setTimeout(() => setLoading(false), 2000);
+      return () => clearTimeout(timeout);
+    }
   }, [setUser, setLoading]);
 
   if (isLoading) {
@@ -98,7 +101,7 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a1a] max-w-[430px] mx-auto relative">
+    <div className="min-h-screen bg-[#0a0a1a] max-w-[430px] mx-auto relative" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
       {activeTab === 'overview' && <Overview />}
       {activeTab === 'positions' && <Positions />}
       {activeTab === 'debts' && <Debts />}

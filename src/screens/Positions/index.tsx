@@ -61,7 +61,7 @@ export default function Positions() {
   ];
 
   return (
-    <div className="px-5 pt-4 pb-28">
+    <div className="px-5 pt-6 pb-32">
       <PageHeader
         title="Alle Positionen"
         right={
