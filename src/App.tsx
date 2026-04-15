@@ -30,8 +30,8 @@ function LoginScreen() {
   };
 
   return (
-    <div style={{ minHeight: '100dvh', background: '#0a0a1a', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-      <div style={{ width: '100%', maxWidth: 320, textAlign: 'center' }}>
+    <div style={{ minHeight: '100dvh', background: '#0a0a1a', paddingTop: '20vh', paddingLeft: 20, paddingRight: 20, paddingBottom: 40 }}>
+      <div style={{ width: '100%', maxWidth: 320, margin: '0 auto', textAlign: 'center' }}>
         {/* Logo */}
         <div style={{ width: 80, height: 80, margin: '0 auto 24px', borderRadius: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #141428 0%, #1a1a36 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
           <span style={{ fontSize: 32, fontWeight: 700, color: '#b8b2f0' }}>H</span>
