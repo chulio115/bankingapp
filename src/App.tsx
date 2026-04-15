@@ -43,21 +43,20 @@ function LoginScreen() {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <input
-            type="email"
+            type="text"
+            inputMode="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
             style={{ width: '100%', background: '#0e0e20', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '14px 16px', fontSize: 15, color: '#e2e2ff', outline: 'none', fontFamily: 'inherit' }}
-            autoCapitalize="none"
-            autoComplete="email"
           />
           <input
-            type="password"
+            type="text"
+            inputMode="text"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Passwort"
             style={{ width: '100%', background: '#0e0e20', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '14px 16px', fontSize: 15, color: '#e2e2ff', outline: 'none', fontFamily: 'inherit' }}
-            autoComplete="current-password"
           />
           {error && <div style={{ fontSize: 12, color: '#F0997B' }}>{error}</div>}
           <button
