@@ -10,7 +10,12 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Network-first strategy for all requests to prevent stale cache
+  // Skip non-HTTP(S) requests (chrome-extension, etc.)
+  if (!event.request.url.startsWith('http')) {
+    return;
+  }
+
+  // Network-first strategy for HTTP(S) requests to prevent stale cache
   event.respondWith(
     fetch(event.request)
       .then((response) => {
