@@ -41,13 +41,10 @@ const tabs = [
 export default function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-40 glass border-t border-white/[0.06]"
-      style={{ paddingBottom: 'max(8px, env(safe-area-inset-bottom, 8px))' }}
+      className="glass nav-bottom-safe"
+      style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 40, borderTop: '1px solid rgba(255,255,255,0.06)' }}
     >
-      <div
-        className="max-w-[430px] mx-auto"
-        style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', paddingTop: 8 }}
-      >
+      <div style={{ maxWidth: 430, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', paddingTop: 8 }}>
         {tabs.map((tab) => {
           const active = activeTab === tab.id;
           const color = active ? '#b8b2f0' : '#555577';

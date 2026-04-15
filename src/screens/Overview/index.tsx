@@ -61,9 +61,11 @@ export default function Overview() {
         <>
           {/* Donut Chart — only when expenses exist */}
           {expense > 0 && (
-            <Card className="mb-6">
-              <DonutChart data={chartData} total={expense} label="Ausgaben" />
-            </Card>
+            <div style={{ marginBottom: 20 }}>
+              <Card>
+                <DonutChart data={chartData} total={expense} label="Ausgaben" />
+              </Card>
+            </div>
           )}
 
           {/* Income / Expense Stats */}

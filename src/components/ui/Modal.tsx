@@ -22,25 +22,33 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center">
+    <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
       <div
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+        style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)' }}
         onClick={onClose}
       />
-      <div className="relative w-full max-w-[430px] max-h-[85vh] bg-[#121225] border-t border-white/[0.08] rounded-t-3xl overflow-y-auto animate-[slideUp_300ms_ease-out]">
-        <div className="flex justify-center pt-3 pb-1">
-          <div className="w-10 h-1 rounded-full bg-white/[0.15]" />
+      <div
+        className="modal-content"
+        style={{
+          position: 'relative', width: '100%', maxWidth: 430, maxHeight: '85vh',
+          background: '#121225', borderTop: '1px solid rgba(255,255,255,0.08)',
+          borderRadius: '24px 24px 0 0', overflowY: 'auto',
+          animation: 'slideUp 300ms ease-out',
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 12, paddingBottom: 4 }}>
+          <div style={{ width: 40, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.15)' }} />
         </div>
-        <div className="sticky top-0 bg-[#121225] flex items-center justify-between px-5 py-3">
-          <h2 className="text-base font-semibold text-[#e2e2ff]">{title}</h2>
+        <div style={{ position: 'sticky', top: 0, background: '#121225', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 20px' }}>
+          <h2 style={{ fontSize: 16, fontWeight: 600, color: '#e2e2ff', margin: 0 }}>{title}</h2>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-full bg-white/[0.06] text-[#777799] text-sm hover:bg-white/[0.1]"
+            style={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', background: 'rgba(255,255,255,0.06)', color: '#777799', fontSize: 14, border: 'none', cursor: 'pointer' }}
           >
             ✕
           </button>
         </div>
-        <div className="px-5 pb-8 pt-1">{children}</div>
+        <div style={{ padding: '4px 20px 0' }}>{children}</div>
       </div>
       <style>{`
         @keyframes slideUp {

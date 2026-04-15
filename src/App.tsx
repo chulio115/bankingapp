@@ -132,10 +132,7 @@ function App() {
   }
 
   return (
-    <div
-      className="min-h-screen bg-[#0a0a1a] max-w-[430px] mx-auto relative"
-      style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 8px)' }}
-    >
+    <div className="app-shell">
       {activeTab === 'overview' && <Overview />}
       {activeTab === 'positions' && <Positions />}
       {activeTab === 'debts' && <Debts />}

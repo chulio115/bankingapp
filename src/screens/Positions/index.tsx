@@ -71,20 +71,24 @@ export default function Positions() {
         </button>
       </div>
 
-      <div className="flex gap-2 overflow-x-auto pb-4 mb-2 scrollbar-hide">
-        {filterTabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setFilter(tab.id)}
-            className={`text-xs font-medium px-3.5 py-1.5 rounded-xl whitespace-nowrap transition-all duration-200 ${
-              filter === tab.id
-                ? 'bg-[#7c6fe0]/15 text-[#b8b2f0] border border-[#7c6fe0]/30'
-                : 'bg-white/[0.03] text-[#555577] border border-white/[0.06] hover:bg-white/[0.06]'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+      <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 12, marginBottom: 8, WebkitOverflowScrolling: 'touch' }} className="scrollbar-hide">
+        {filterTabs.map((tab) => {
+          const isActive = filter === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setFilter(tab.id)}
+              style={{
+                fontSize: 12, fontWeight: 500, padding: '6px 14px', borderRadius: 12, whiteSpace: 'nowrap', cursor: 'pointer',
+                background: isActive ? 'rgba(124,111,224,0.12)' : 'rgba(255,255,255,0.03)',
+                color: isActive ? '#b8b2f0' : '#555577',
+                border: `1px solid ${isActive ? 'rgba(124,111,224,0.3)' : 'rgba(255,255,255,0.06)'}`,
+              }}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
       </div>
 
       {!hasData ? (
@@ -96,21 +100,21 @@ export default function Positions() {
       ) : (
         <div>
           {filteredIncomes.length > 0 && (
-            <div className="mb-6">
-              <div className="text-[11px] text-[#555577] uppercase tracking-[0.12em] font-semibold mb-3">
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ fontSize: 11, color: '#555577', textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: 600, marginBottom: 10 }}>
                 Einnahmen
               </div>
               {filteredIncomes.map((inc) => (
                 <div
                   key={inc.id}
                   onClick={() => handleEdit(inc, 'income')}
-                  className="flex items-center justify-between py-3.5 border-b border-white/[0.04] cursor-pointer active:opacity-70 hover:bg-white/[0.02] -mx-2 px-2 rounded-lg transition-colors"
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.04)', cursor: 'pointer' }}
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-2.5 h-2.5 rounded-full bg-[#5DCAA5] shadow-[0_0_6px_rgba(93,202,165,0.4)]" />
-                    <span className="text-sm text-[#e2e2ff] font-medium">{inc.name}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#5DCAA5', boxShadow: '0 0 6px rgba(93,202,165,0.4)' }} />
+                    <span style={{ fontSize: 14, color: '#e2e2ff', fontWeight: 500 }}>{inc.name}</span>
                   </div>
-                  <span className="text-sm font-semibold text-[#5DCAA5]">
+                  <span style={{ fontSize: 14, fontWeight: 600, color: '#5DCAA5' }}>
                     + {formatEuro(inc.amount)}
                   </span>
                 </div>
@@ -121,37 +125,23 @@ export default function Positions() {
           {Object.entries(expensesByCategory).map(([catId, items]) => {
             const cat = categories.find((c) => c.id === catId);
             return (
-              <div key={catId} className="mb-6">
-                <div className="text-[11px] text-[#555577] uppercase tracking-[0.12em] font-semibold mb-3">
+              <div key={catId} style={{ marginBottom: 20 }}>
+                <div style={{ fontSize: 11, color: '#555577', textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: 600, marginBottom: 10 }}>
                   Ausgaben
                 </div>
                 {items.map((exp) => (
                   <div
                     key={exp.id}
                     onClick={() => handleEdit(exp, 'expense')}
-                    className="flex items-center justify-between py-3.5 border-b border-white/[0.04] cursor-pointer active:opacity-70 hover:bg-white/[0.02] -mx-2 px-2 rounded-lg transition-colors"
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.04)', cursor: 'pointer' }}
                   >
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="w-2.5 h-2.5 rounded-full"
-                        style={{
-                          backgroundColor: cat?.dotColor || '#555577',
-                          boxShadow: `0 0 6px ${cat?.dotColor || '#555577'}66`,
-                        }}
-                      />
-                      <span className="text-sm text-[#e2e2ff] font-medium">{exp.name}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: cat?.dotColor || '#555577', boxShadow: `0 0 6px ${cat?.dotColor || '#555577'}66` }} />
+                      <span style={{ fontSize: 14, color: '#e2e2ff', fontWeight: 500 }}>{exp.name}</span>
                     </div>
-                    <div className="flex items-center gap-2.5">
-                      <span className="text-sm text-[#c0c0dd]">
-                        {formatEuro(exp.amount)}
-                      </span>
-                      {cat && (
-                        <Badge
-                          label={cat.label.length > 6 ? cat.label.substring(0, 6) : cat.label}
-                          bgColor={cat.bgColor}
-                          textColor={cat.textColor}
-                        />
-                      )}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontSize: 14, color: '#c0c0dd' }}>{formatEuro(exp.amount)}</span>
+                      {cat && <Badge label={cat.label.length > 6 ? cat.label.substring(0, 6) : cat.label} bgColor={cat.bgColor} textColor={cat.textColor} />}
                     </div>
                   </div>
                 ))}
