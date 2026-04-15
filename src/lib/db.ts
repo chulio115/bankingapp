@@ -1,7 +1,7 @@
 import { sql, hasNeon } from './neon';
 import type { Income, Expense, CategoryConfig } from '../types/finance';
 
-interface DBIncome { id: string; name: string; amount: string; month: string; notes: string | null; }
+interface DBIncome { id: string; name: string; amount: string; month: string; is_recurring: boolean | null; notes: string | null; }
 interface DBExpense { id: string; name: string; amount: string; category_id: string | null; month: string; is_recurring: boolean; notes: string | null; debt_details: string | null; }
 interface DBCategory { id: string; label: string; bg_color: string; text_color: string; dot_color: string; }
 
@@ -36,7 +36,7 @@ export async function loadUserData(userId: string): Promise<LocalData> {
     ]);
     return {
       categories: (cats as DBCategory[]).map((c): CategoryConfig => ({ id: c.id, label: c.label, bgColor: c.bg_color, textColor: c.text_color, dotColor: c.dot_color })),
-      incomes: (incs as DBIncome[]).map((i): Income => ({ id: i.id, name: i.name, amount: parseFloat(i.amount), month: i.month, notes: i.notes || '' })),
+      incomes: (incs as DBIncome[]).map((i): Income => ({ id: i.id, name: i.name, amount: parseFloat(i.amount), month: i.month, isRecurring: i.is_recurring || false, notes: i.notes || '' })),
       expenses: (exps as DBExpense[]).map((e): Expense => ({ id: e.id, name: e.name, amount: parseFloat(e.amount), category: e.category_id || '', month: e.month, isRecurring: e.is_recurring, notes: e.notes || '', debtDetails: e.debt_details ? JSON.parse(e.debt_details) : undefined })),
     };
   } catch (error) {
@@ -47,13 +47,13 @@ export async function loadUserData(userId: string): Promise<LocalData> {
 
 export async function addIncome(userId: string, income: Income) {
   if (!hasNeon || !sql) { const d = lsLoad(userId); d.incomes.push(income); lsSave(userId, d); return; }
-  try { await sql`INSERT INTO incomes (id, user_id, name, amount, month, notes) VALUES (${income.id}, ${userId}, ${income.name}, ${income.amount}, ${income.month}, ${income.notes || ''})`; }
+  try { await sql`INSERT INTO incomes (id, user_id, name, amount, month, is_recurring, notes) VALUES (${income.id}, ${userId}, ${income.name}, ${income.amount}, ${income.month}, ${income.isRecurring || false}, ${income.notes || ''})`; }
   catch (error) { console.error('addIncome error:', error); const d = lsLoad(userId); d.incomes.push(income); lsSave(userId, d); }
 }
 
 export async function updateIncome(userId: string, income: Income) {
   if (!hasNeon || !sql) { const d = lsLoad(userId); d.incomes = d.incomes.map((i) => i.id === income.id ? income : i); lsSave(userId, d); return; }
-  try { await sql`UPDATE incomes SET name = ${income.name}, amount = ${income.amount}, month = ${income.month}, notes = ${income.notes || ''} WHERE id = ${income.id} AND user_id = ${userId}`; }
+  try { await sql`UPDATE incomes SET name = ${income.name}, amount = ${income.amount}, month = ${income.month}, is_recurring = ${income.isRecurring || false}, notes = ${income.notes || ''} WHERE id = ${income.id} AND user_id = ${userId}`; }
   catch (error) { console.error('updateIncome error:', error); const d = lsLoad(userId); d.incomes = d.incomes.map((i) => i.id === income.id ? income : i); lsSave(userId, d); }
 }
 

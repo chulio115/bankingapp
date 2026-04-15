@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS incomes (
   name VARCHAR(255) NOT NULL,
   amount DECIMAL(10, 2) NOT NULL,
   month VARCHAR(7) NOT NULL,  -- Format: YYYY-MM
+  is_recurring BOOLEAN DEFAULT false,
   notes TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
