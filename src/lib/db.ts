@@ -36,7 +36,17 @@ export async function loadUserData(userId: string): Promise<LocalData> {
     return {
       categories: (cats as DBCategory[]).map((c): CategoryConfig => ({ id: c.id, label: c.label, bgColor: c.bg_color, textColor: c.text_color, dotColor: c.dot_color })),
       incomes: (incs as DBIncome[]).map((i): Income => ({ id: i.id, name: i.name, amount: parseFloat(i.amount), month: i.month, isRecurring: i.is_recurring || false, notes: i.notes || '' })),
-      expenses: (exps as DBExpense[]).map((e): Expense => ({ id: e.id, name: e.name, amount: parseFloat(e.amount), category: e.category_id || '', month: e.month, isRecurring: e.is_recurring, notes: e.notes || '', debtDetails: e.debt_details ? JSON.parse(e.debt_details) : undefined })),
+      expenses: (exps as DBExpense[]).map((e): Expense => {
+        let debtDetails;
+        try {
+          debtDetails = e.debt_details ? (typeof e.debt_details === 'string' ? JSON.parse(e.debt_details) : e.debt_details) : undefined;
+        } catch {
+          debtDetails = undefined;
+        }
+        return {
+          id: e.id, name: e.name, amount: parseFloat(e.amount), category: e.category_id || '', month: e.month, isRecurring: e.is_recurring, notes: e.notes || '', debtDetails,
+        };
+      }),
     };
   } catch (error) {
     console.error('[DB] loadUserData error:', error);

@@ -13,7 +13,7 @@ async function goTrueLogin(email: string, password: string) {
   const res = await fetch('/.netlify/identity/token', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: `grant_type=password&username=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`,
+    body: `grant_type=password&email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`,
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
