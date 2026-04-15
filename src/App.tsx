@@ -9,28 +9,62 @@ import Positions from './screens/Positions/index';
 import Debts from './screens/Debts/index';
 import Settings from './screens/Settings/index';
 
-function LoginScreen() {
+function LoginScreen({ onLogin }: { onLogin: (email: string, password: string) => void }) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password) return;
+    setLoading(true);
+    setError('');
+    onLogin(email, password);
+  };
+
   return (
-    <div className="min-h-screen bg-[#0a0a1a] flex items-center justify-center">
-      <div className="text-center px-8">
-        {/* Logo */}
+    <div className="min-h-screen bg-[#0a0a1a] flex items-center justify-center p-6">
+      <div className="w-full max-w-sm">
         <div className="w-20 h-20 mx-auto mb-6 rounded-3xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #141428 0%, #1a1a36 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
           <span className="text-3xl font-bold text-[#b8b2f0]">H</span>
         </div>
-        <h1 className="text-2xl font-bold text-[#e2e2ff] mb-2 tracking-tight">Haushalt</h1>
-        <p className="text-sm text-[#555577] mb-10 leading-relaxed">
-          Deine persönliche Finanzübersicht
-        </p>
-        <button
-          onClick={() => netlifyIdentity.open()}
-          className="text-sm font-semibold px-8 py-3.5 rounded-2xl text-white"
-          style={{
-            background: 'linear-gradient(135deg, #7c6fe0 0%, #9b8ff0 100%)',
-            boxShadow: '0 8px 24px rgba(124, 111, 224, 0.3)',
-          }}
-        >
-          Anmelden
-        </button>
+        <h1 className="text-2xl font-bold text-[#e2e2ff] mb-2 text-center tracking-tight">Haushalt</h1>
+        <p className="text-sm text-[#555577] mb-8 text-center">Deine persönliche Finanzübersicht</p>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-xs text-[#555577] mb-1.5 ml-1">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full bg-[#0e0e20] border border-[#1a1a3a] rounded-xl px-4 py-3 text-[#e2e2ff] text-base focus:outline-none focus:border-[#7c6fe0]"
+              autoCapitalize="none"
+              autoCorrect="off"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-xs text-[#555577] mb-1.5 ml-1">Passwort</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full bg-[#0e0e20] border border-[#1a1a3a] rounded-xl px-4 py-3 text-[#e2e2ff] text-base focus:outline-none focus:border-[#7c6fe0]"
+              required
+            />
+          </div>
+          {error && <p className="text-xs text-red-400">{error}</p>}
+          <button
+            type="submit"
+            disabled={loading || !email || !password}
+            className="w-full py-3.5 rounded-xl text-white font-semibold text-sm disabled:opacity-50"
+            style={{ background: 'linear-gradient(135deg, #7c6fe0 0%, #9b8ff0 100%)' }}
+          >
+            {loading ? 'Anmelden...' : 'Anmelden'}
+          </button>
+        </form>
       </div>
     </div>
   );
@@ -57,62 +91,34 @@ function App() {
           console.error('Error loading data for existing user:', err);
           setLoading(false);
         });
+    } else {
+      setLoading(false);
     }
-
-    netlifyIdentity.on('login', (u) => {
-      if (u) {
-        const userData = {
-          id: u.id,
-          name: u.user_metadata?.full_name || u.email?.split('@')[0] || 'User',
-          email: u.email || '',
-        };
-        setUser(userData);
-        ensureUser(u.id, u.email || '', userData.name)
-          .then(() => loadData(u.id))
-          .then(() => setLoading(false))
-          .catch((err) => {
-            console.error('Error loading data after login:', err);
-            setLoading(false);
-          });
-      } else {
-        setLoading(false);
-      }
-      netlifyIdentity.close();
-    });
 
     netlifyIdentity.on('logout', () => {
       setUser(null);
     });
+  }, []);
 
-    netlifyIdentity.on('close', () => {
-      const u = netlifyIdentity.currentUser();
-      if (u) {
-        const userData = {
-          id: u.id,
-          name: u.user_metadata?.full_name || u.email?.split('@')[0] || 'User',
-          email: u.email || '',
-        };
-        setUser(userData);
-        ensureUser(u.id, u.email || '', userData.name)
-          .then(() => loadData(u.id))
-          .then(() => setLoading(false))
-          .catch((err) => {
-            console.error('Error loading data after close:', err);
-            setLoading(false);
-          });
-      } else {
-        setLoading(false);
-      }
-    });
-
-    // init AFTER setting up event handlers — will NOT auto-open if user already resolved above
-    if (!existingUser) {
-      netlifyIdentity.init();
-      // Fallback: if init doesn't fire (e.g. no Netlify backend in local dev), stop loading after 2s
-      const timeout = setTimeout(() => setLoading(false), 2000);
-      return () => clearTimeout(timeout);
+  const handleLogin = async (email: string, password: string) => {
+    try {
+      const user = await (netlifyIdentity as any).auth.login(email, password, true);
+      const userData = {
+        id: user.id,
+        name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+        email: user.email || '',
+      };
+      setUser(userData);
+      setLoading(true);
+      await ensureUser(user.id, user.email || '', userData.name);
+      await loadData(user.id);
+    } catch (err) {
+      console.error('Login error:', err);
+      throw err;
+    } finally {
+      setLoading(false);
     }
-  }, [setUser, setLoading, loadData]);
+  };
 
   if (isLoading) {
     return (
@@ -128,7 +134,7 @@ function App() {
   }
 
   if (!user) {
-    return <LoginScreen />;
+    return <LoginScreen onLogin={handleLogin} />;
   }
 
   return (
