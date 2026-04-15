@@ -21,50 +21,102 @@ export async function ensureUser(userId: string, email: string, name: string) {
 }
 
 export async function loadUserData(userId: string): Promise<LocalData> {
-  if (!sql) return emptyData();
-  const [cats, incs, exps] = await Promise.all([
-    sql`SELECT * FROM categories WHERE user_id = ${userId}`,
-    sql`SELECT * FROM incomes WHERE user_id = ${userId}`,
-    sql`SELECT * FROM expenses WHERE user_id = ${userId}`,
-  ]);
-  return {
-    categories: (cats as DBCategory[]).map((c): CategoryConfig => ({ id: c.id, label: c.label, bgColor: c.bg_color, textColor: c.text_color, dotColor: c.dot_color })),
-    incomes: (incs as DBIncome[]).map((i): Income => ({ id: i.id, name: i.name, amount: parseFloat(i.amount), month: i.month, isRecurring: i.is_recurring || false, notes: i.notes || '' })),
-    expenses: (exps as DBExpense[]).map((e): Expense => ({ id: e.id, name: e.name, amount: parseFloat(e.amount), category: e.category_id || '', month: e.month, isRecurring: e.is_recurring, notes: e.notes || '', debtDetails: e.debt_details ? JSON.parse(e.debt_details) : undefined })),
-  };
+  console.log('[DB] loadUserData called for userId:', userId);
+  if (!sql) {
+    console.log('[DB] No SQL client, returning empty data');
+    return emptyData();
+  }
+  try {
+    const [cats, incs, exps] = await Promise.all([
+      sql`SELECT * FROM categories WHERE user_id = ${userId}`,
+      sql`SELECT * FROM incomes WHERE user_id = ${userId}`,
+      sql`SELECT * FROM expenses WHERE user_id = ${userId}`,
+    ]);
+    console.log('[DB] Loaded data:', { categories: cats.length, incomes: incs.length, expenses: exps.length });
+    return {
+      categories: (cats as DBCategory[]).map((c): CategoryConfig => ({ id: c.id, label: c.label, bgColor: c.bg_color, textColor: c.text_color, dotColor: c.dot_color })),
+      incomes: (incs as DBIncome[]).map((i): Income => ({ id: i.id, name: i.name, amount: parseFloat(i.amount), month: i.month, isRecurring: i.is_recurring || false, notes: i.notes || '' })),
+      expenses: (exps as DBExpense[]).map((e): Expense => ({ id: e.id, name: e.name, amount: parseFloat(e.amount), category: e.category_id || '', month: e.month, isRecurring: e.is_recurring, notes: e.notes || '', debtDetails: e.debt_details ? JSON.parse(e.debt_details) : undefined })),
+    };
+  } catch (error) {
+    console.error('[DB] loadUserData error:', error);
+    return emptyData();
+  }
 }
 
 export async function addIncome(userId: string, income: Income) {
   if (!sql) return;
-  await sql`INSERT INTO incomes (id, user_id, name, amount, month, is_recurring, notes) VALUES (${income.id}, ${userId}, ${income.name}, ${income.amount}, ${income.month}, ${income.isRecurring || false}, ${income.notes || ''})`;
+  console.log('[DB] addIncome:', { userId, incomeId: income.id, name: income.name, amount: income.amount });
+  try {
+    await sql`INSERT INTO incomes (id, user_id, name, amount, month, is_recurring, notes) VALUES (${income.id}, ${userId}, ${income.name}, ${income.amount}, ${income.month}, ${income.isRecurring || false}, ${income.notes || ''})`;
+    console.log('[DB] addIncome success');
+  } catch (e) {
+    console.error('[DB] addIncome error:', e);
+  }
 }
 
 export async function updateIncome(userId: string, income: Income) {
   if (!sql) return;
-  await sql`UPDATE incomes SET name = ${income.name}, amount = ${income.amount}, month = ${income.month}, is_recurring = ${income.isRecurring || false}, notes = ${income.notes || ''} WHERE id = ${income.id} AND user_id = ${userId}`;
+  console.log('[DB] updateIncome:', { userId, incomeId: income.id });
+  try {
+    await sql`UPDATE incomes SET name = ${income.name}, amount = ${income.amount}, month = ${income.month}, is_recurring = ${income.isRecurring || false}, notes = ${income.notes || ''} WHERE id = ${income.id} AND user_id = ${userId}`;
+    console.log('[DB] updateIncome success');
+  } catch (e) {
+    console.error('[DB] updateIncome error:', e);
+  }
 }
 
 export async function deleteIncome(userId: string, id: string) {
   if (!sql) return;
-  await sql`DELETE FROM incomes WHERE id = ${id} AND user_id = ${userId}`;
+  console.log('[DB] deleteIncome:', { userId, id });
+  try {
+    await sql`DELETE FROM incomes WHERE id = ${id} AND user_id = ${userId}`;
+    console.log('[DB] deleteIncome success');
+  } catch (e) {
+    console.error('[DB] deleteIncome error:', e);
+  }
 }
 
 export async function addExpense(userId: string, expense: Expense) {
   if (!sql) return;
-  await sql`INSERT INTO expenses (id, user_id, name, amount, category_id, month, is_recurring, notes, debt_details) VALUES (${expense.id}, ${userId}, ${expense.name}, ${expense.amount}, ${expense.category || null}, ${expense.month}, ${expense.isRecurring || false}, ${expense.notes || ''}, ${expense.debtDetails ? JSON.stringify(expense.debtDetails) : null})`;
+  console.log('[DB] addExpense:', { userId, expenseId: expense.id, name: expense.name, amount: expense.amount });
+  try {
+    await sql`INSERT INTO expenses (id, user_id, name, amount, category_id, month, is_recurring, notes, debt_details) VALUES (${expense.id}, ${userId}, ${expense.name}, ${expense.amount}, ${expense.category || null}, ${expense.month}, ${expense.isRecurring || false}, ${expense.notes || ''}, ${expense.debtDetails ? JSON.stringify(expense.debtDetails) : null})`;
+    console.log('[DB] addExpense success');
+  } catch (e) {
+    console.error('[DB] addExpense error:', e);
+  }
 }
 
 export async function updateExpense(userId: string, expense: Expense) {
   if (!sql) return;
-  await sql`UPDATE expenses SET name = ${expense.name}, amount = ${expense.amount}, category_id = ${expense.category || null}, month = ${expense.month}, is_recurring = ${expense.isRecurring || false}, notes = ${expense.notes || ''}, debt_details = ${expense.debtDetails ? JSON.stringify(expense.debtDetails) : null} WHERE id = ${expense.id} AND user_id = ${userId}`;
+  console.log('[DB] updateExpense:', { userId, expenseId: expense.id });
+  try {
+    await sql`UPDATE expenses SET name = ${expense.name}, amount = ${expense.amount}, category_id = ${expense.category || null}, month = ${expense.month}, is_recurring = ${expense.isRecurring || false}, notes = ${expense.notes || ''}, debt_details = ${expense.debtDetails ? JSON.stringify(expense.debtDetails) : null} WHERE id = ${expense.id} AND user_id = ${userId}`;
+    console.log('[DB] updateExpense success');
+  } catch (e) {
+    console.error('[DB] updateExpense error:', e);
+  }
 }
 
 export async function deleteExpense(userId: string, id: string) {
   if (!sql) return;
-  await sql`DELETE FROM expenses WHERE id = ${id} AND user_id = ${userId}`;
+  console.log('[DB] deleteExpense:', { userId, id });
+  try {
+    await sql`DELETE FROM expenses WHERE id = ${id} AND user_id = ${userId}`;
+    console.log('[DB] deleteExpense success');
+  } catch (e) {
+    console.error('[DB] deleteExpense error:', e);
+  }
 }
 
 export async function addCategory(userId: string, category: CategoryConfig) {
   if (!sql) return;
-  await sql`INSERT INTO categories (id, user_id, label, bg_color, text_color, dot_color) VALUES (${category.id}, ${userId}, ${category.label}, ${category.bgColor}, ${category.textColor}, ${category.dotColor})`;
+  console.log('[DB] addCategory:', { userId, categoryId: category.id, label: category.label });
+  try {
+    await sql`INSERT INTO categories (id, user_id, label, bg_color, text_color, dot_color) VALUES (${category.id}, ${userId}, ${category.label}, ${category.bgColor}, ${category.textColor}, ${category.dotColor})`;
+    console.log('[DB] addCategory success');
+  } catch (e) {
+    console.error('[DB] addCategory error:', e);
+  }
 }
