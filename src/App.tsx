@@ -80,20 +80,17 @@ function LoginScreen({ onLogin }: { onLogin: (u: { id: string; email: string; na
             placeholder="Email"
             autoCapitalize="none"
             autoCorrect="off"
-            style={{ width: '100%', boxSizing: 'border-box', background: '#0e0e20', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '14px 16px', fontSize: 16, color: '#e2e2ff', outline: 'none', fontFamily: 'inherit', WebkitAppearance: 'none' }}
           />
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Passwort"
-            style={{ width: '100%', boxSizing: 'border-box', background: '#0e0e20', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '14px 16px', fontSize: 16, color: '#e2e2ff', outline: 'none', fontFamily: 'inherit', WebkitAppearance: 'none' }}
           />
           {error && <div style={{ fontSize: 12, color: '#F0997B' }}>{error}</div>}
           <button
             onClick={handleLogin}
             disabled={loading || !email || !password}
-            style={{ fontSize: 14, fontWeight: 600, padding: '14px 0', borderRadius: 12, color: '#fff', border: 'none', background: 'linear-gradient(135deg, #7c6fe0 0%, #9b8ff0 100%)', boxShadow: '0 8px 24px rgba(124, 111, 224, 0.3)', opacity: loading || !email || !password ? 0.5 : 1 }}
           >
             {loading ? 'Laden...' : 'Anmelden'}
           </button>
