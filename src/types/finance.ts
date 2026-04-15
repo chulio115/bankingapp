@@ -22,6 +22,7 @@ export interface Income {
   name: string;
   amount: number;
   month: string;
+  isRecurring?: boolean;
   notes?: string;
 }
 

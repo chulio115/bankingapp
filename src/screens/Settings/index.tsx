@@ -141,9 +141,9 @@ export default function Settings() {
         onClose={() => setShowAddCat(false)}
         title="Neue Kategorie"
       >
-        <div className="space-y-5">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
           <div>
-            <label className="text-[11px] text-[#555577] uppercase tracking-[0.1em] font-medium mb-2 block">
+            <label style={{ display: 'block', fontSize: 11, color: '#555577', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 500, marginBottom: 8 }}>
               Name
             </label>
             <input
@@ -151,30 +151,27 @@ export default function Settings() {
               value={newCatName}
               onChange={(e) => setNewCatName(e.target.value)}
               placeholder="z.B. Transport"
-              className="w-full bg-[#0e0e20] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-[#e2e2ff] outline-none transition-all"
+              style={{ width: '100%', background: '#0e0e20', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '14px 16px', fontSize: 15, color: '#e2e2ff', outline: 'none', fontFamily: 'inherit' }}
             />
           </div>
 
           <div>
-            <label className="text-[11px] text-[#555577] uppercase tracking-[0.1em] font-medium mb-2 block">
+            <label style={{ display: 'block', fontSize: 11, color: '#555577', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 500, marginBottom: 8 }}>
               Farbe
             </label>
-            <div className="flex gap-2.5 flex-wrap">
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
               {PALETTE_COLORS.map((color, i) => (
                 <button
                   key={i}
                   onClick={() => setSelectedColor(i)}
-                  className="w-9 h-9 rounded-xl border-2 transition-all duration-200 flex items-center justify-center"
                   style={{
+                    width: 36, height: 36, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
                     backgroundColor: color.bgColor,
-                    borderColor: i === selectedColor ? color.textColor : 'transparent',
+                    border: `2px solid ${i === selectedColor ? color.textColor : 'transparent'}`,
                     boxShadow: i === selectedColor ? `0 0 12px ${color.textColor}33` : 'none',
                   }}
                 >
-                  <div
-                    className="w-3.5 h-3.5 rounded-full"
-                    style={{ backgroundColor: color.textColor }}
-                  />
+                  <div style={{ width: 14, height: 14, borderRadius: '50%', backgroundColor: color.textColor }} />
                 </button>
               ))}
             </div>
@@ -182,11 +179,7 @@ export default function Settings() {
 
           <button
             onClick={handleAddCategory}
-            className="w-full text-sm font-semibold py-3 rounded-xl text-white transition-all"
-            style={{
-              background: 'linear-gradient(135deg, #7c6fe0 0%, #9b8ff0 100%)',
-              boxShadow: '0 4px 16px rgba(124, 111, 224, 0.3)',
-            }}
+            style={{ width: '100%', fontSize: 14, fontWeight: 600, padding: '14px 0', borderRadius: 12, color: '#fff', border: 'none', cursor: 'pointer', background: 'linear-gradient(135deg, #7c6fe0 0%, #9b8ff0 100%)', boxShadow: '0 4px 16px rgba(124, 111, 224, 0.3)' }}
           >
             Hinzufügen
           </button>

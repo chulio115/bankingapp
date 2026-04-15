@@ -31,7 +31,7 @@ export default function Debts() {
       {uniqueDebts.length === 0 ? (
         <EmptyState message="Keine Schulden vorhanden." />
       ) : (
-        <div className="space-y-3">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {uniqueDebts.map((debt) => (
             <DebtCard
               key={debt.id}
@@ -47,103 +47,66 @@ export default function Debts() {
         onClose={() => setSelectedDebt(null)}
         title="Schulden-Detail"
       >
-        {selectedDebt?.debtDetails && (
-          <div className="space-y-5">
-            <div className="flex justify-between items-center">
-              <span className="text-base text-[#e2e2ff] font-semibold">
-                {selectedDebt.name}
-              </span>
-              <span className="text-sm text-[#c0c0dd] font-medium">
-                {formatEuro(selectedDebt.debtDetails.monthlyRate)} / mo
-              </span>
-            </div>
+        {selectedDebt?.debtDetails && (() => {
+          const d = selectedDebt.debtDetails!;
+          const months = remainingMonths(d.endDate);
+          const statBox: React.CSSProperties = { background: 'rgba(255,255,255,0.03)', borderRadius: 12, padding: 14 };
+          const statLabel: React.CSSProperties = { fontSize: 11, color: '#555577', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 500, marginBottom: 4 };
+          const statVal: React.CSSProperties = { fontSize: 14, fontWeight: 500 };
+          const row: React.CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 0' };
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: 16, color: '#e2e2ff', fontWeight: 600 }}>{selectedDebt.name}</span>
+                <span style={{ fontSize: 14, color: '#c0c0dd', fontWeight: 500 }}>{formatEuro(d.monthlyRate)} / mo</span>
+              </div>
 
-            <ProgressBar
-              percent={debtProgress(
-                selectedDebt.debtDetails.totalAmount,
-                selectedDebt.debtDetails.remainingAmount,
-              )}
-            />
+              <ProgressBar percent={debtProgress(d.totalAmount, d.remainingAmount)} />
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-white/[0.03] rounded-xl p-3">
-                <div className="text-[11px] text-[#555577] uppercase tracking-[0.1em] font-medium mb-1">
-                  Gesamtbetrag
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                <div style={statBox}>
+                  <div style={statLabel}>Gesamtbetrag</div>
+                  <div style={{ ...statVal, color: '#e2e2ff' }}>{formatEuro(d.totalAmount)}</div>
                 </div>
-                <div className="text-sm text-[#e2e2ff] font-medium">
-                  {formatEuro(selectedDebt.debtDetails.totalAmount)}
+                <div style={statBox}>
+                  <div style={statLabel}>Restbetrag</div>
+                  <div style={{ ...statVal, color: '#F0997B' }}>{formatEuro(d.remainingAmount)}</div>
                 </div>
-              </div>
-              <div className="bg-white/[0.03] rounded-xl p-3">
-                <div className="text-[11px] text-[#555577] uppercase tracking-[0.1em] font-medium mb-1">
-                  Restbetrag
+                <div style={statBox}>
+                  <div style={statLabel}>Restlaufzeit</div>
+                  <div style={{ ...statVal, color: months > 48 ? '#F0997B' : '#5DCAA5' }}>{months} Monate</div>
                 </div>
-                <div className="text-sm text-[#F0997B] font-medium">
-                  {formatEuro(selectedDebt.debtDetails.remainingAmount)}
-                </div>
-              </div>
-              <div className="bg-white/[0.03] rounded-xl p-3">
-                <div className="text-[11px] text-[#555577] uppercase tracking-[0.1em] font-medium mb-1">
-                  Restlaufzeit
-                </div>
-                <div
-                  className="text-sm font-medium"
-                  style={{
-                    color:
-                      remainingMonths(selectedDebt.debtDetails.endDate) > 48
-                        ? '#F0997B'
-                        : '#5DCAA5',
-                  }}
-                >
-                  {remainingMonths(selectedDebt.debtDetails.endDate)} Monate
+                <div style={statBox}>
+                  <div style={statLabel}>Bezahlt</div>
+                  <div style={{ ...statVal, color: '#5DCAA5' }}>{formatEuro(d.totalAmount - d.remainingAmount)}</div>
                 </div>
               </div>
-              <div className="bg-white/[0.03] rounded-xl p-3">
-                <div className="text-[11px] text-[#555577] uppercase tracking-[0.1em] font-medium mb-1">
-                  Bezahlt
-                </div>
-                <div className="text-sm text-[#5DCAA5] font-medium">
-                  {formatEuro(
-                    selectedDebt.debtDetails.totalAmount -
-                      selectedDebt.debtDetails.remainingAmount,
+
+              {(d.referenceNumber || d.contactPhone || d.contactName) && (
+                <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 14 }}>
+                  {d.referenceNumber && (
+                    <div style={row}>
+                      <span style={{ fontSize: 12, color: '#555577' }}>Aktenzeichen</span>
+                      <span style={{ fontSize: 14, color: '#c0c0dd' }}>{d.referenceNumber}</span>
+                    </div>
+                  )}
+                  {d.contactPhone && (
+                    <div style={row}>
+                      <span style={{ fontSize: 12, color: '#555577' }}>Telefon</span>
+                      <a href={`tel:${d.contactPhone}`} style={{ fontSize: 14, color: '#b8b2f0', fontWeight: 500, textDecoration: 'none' }}>{d.contactPhone}</a>
+                    </div>
+                  )}
+                  {d.contactName && (
+                    <div style={row}>
+                      <span style={{ fontSize: 12, color: '#555577' }}>Kontakt</span>
+                      <span style={{ fontSize: 14, color: '#c0c0dd' }}>{d.contactName}</span>
+                    </div>
                   )}
                 </div>
-              </div>
+              )}
             </div>
-
-            {(selectedDebt.debtDetails.referenceNumber || selectedDebt.debtDetails.contactPhone || selectedDebt.debtDetails.contactName) && (
-              <div className="border-t border-white/[0.06] pt-4 space-y-3">
-                {selectedDebt.debtDetails.referenceNumber && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-[#555577]">Aktenzeichen</span>
-                    <span className="text-sm text-[#c0c0dd]">
-                      {selectedDebt.debtDetails.referenceNumber}
-                    </span>
-                  </div>
-                )}
-                {selectedDebt.debtDetails.contactPhone && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-[#555577]">Telefon</span>
-                    <a
-                      href={`tel:${selectedDebt.debtDetails.contactPhone}`}
-                      className="text-sm text-[#b8b2f0] font-medium"
-                    >
-                      {selectedDebt.debtDetails.contactPhone}
-                    </a>
-                  </div>
-                )}
-                {selectedDebt.debtDetails.contactName && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-[#555577]">Kontakt</span>
-                    <span className="text-sm text-[#c0c0dd]">
-                      {selectedDebt.debtDetails.contactName}
-                    </span>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        )}
+          );
+        })()}
       </Modal>
     </div>
   );

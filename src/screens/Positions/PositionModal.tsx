@@ -38,7 +38,9 @@ export default function PositionModal({ isOpen, onClose, editItem }: PositionMod
       setName(editItem.name);
       setAmount(String(editItem.amount));
       setNotes(editItem.notes || '');
-      if (editItem.type === 'expense') {
+      if (editItem.type === 'income') {
+        setIsRecurring((editItem as Income).isRecurring || false);
+      } else {
         const exp = editItem as Expense;
         setCategory(exp.category);
         setIsRecurring(exp.isRecurring);
@@ -76,6 +78,7 @@ export default function PositionModal({ isOpen, onClose, editItem }: PositionMod
         name: name.trim(),
         amount: parsedAmount,
         month: currentMonth,
+        isRecurring: isRecurring || undefined,
         notes: notes.trim() || undefined,
       };
       if (editItem) await updateIncome(income);
@@ -104,8 +107,19 @@ export default function PositionModal({ isOpen, onClose, editItem }: PositionMod
     onClose();
   };
 
-  const inputClass = 'w-full bg-[#0e0e20] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-[#e2e2ff] outline-none transition-all';
-  const labelClass = 'text-[11px] text-[#555577] uppercase tracking-[0.1em] font-medium mb-2 block';
+  const inputStyle: React.CSSProperties = {
+    width: '100%', background: '#0e0e20', border: '1px solid rgba(255,255,255,0.08)',
+    borderRadius: 12, padding: '14px 16px', fontSize: 15, color: '#e2e2ff', outline: 'none',
+    fontFamily: 'inherit',
+  };
+  const labelStyle: React.CSSProperties = {
+    display: 'block', fontSize: 11, color: '#555577', textTransform: 'uppercase',
+    letterSpacing: '0.1em', fontWeight: 500, marginBottom: 8,
+  };
+  const sectionTitle: React.CSSProperties = {
+    fontSize: 11, color: '#555577', textTransform: 'uppercase', letterSpacing: '0.1em',
+    fontWeight: 600, marginBottom: 12,
+  };
 
   return (
     <Modal
@@ -113,213 +127,140 @@ export default function PositionModal({ isOpen, onClose, editItem }: PositionMod
       onClose={onClose}
       title={editItem ? 'Position bearbeiten' : 'Neue Position'}
     >
-      <div className="space-y-4">
-        <div className="flex gap-2">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+        {/* Type Toggle */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
           <button
             onClick={() => setType('income')}
-            className={`flex-1 text-sm font-medium py-2.5 rounded-xl border transition-all duration-200 ${
-              type === 'income'
-                ? 'bg-[#5DCAA5]/10 border-[#5DCAA5]/30 text-[#5DCAA5]'
-                : 'bg-white/[0.03] border-white/[0.06] text-[#555577] hover:bg-white/[0.05]'
-            }`}
-          >
-            Einnahme
-          </button>
+            style={{
+              padding: '12px 0', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: 'pointer',
+              background: type === 'income' ? 'rgba(93,202,165,0.12)' : 'rgba(255,255,255,0.03)',
+              color: type === 'income' ? '#5DCAA5' : '#555577',
+              border: `1px solid ${type === 'income' ? 'rgba(93,202,165,0.3)' : 'rgba(255,255,255,0.06)'}`,
+            }}
+          >Einnahme</button>
           <button
             onClick={() => setType('expense')}
-            className={`flex-1 text-sm font-medium py-2.5 rounded-xl border transition-all duration-200 ${
-              type === 'expense'
-                ? 'bg-[#F0997B]/10 border-[#F0997B]/30 text-[#F0997B]'
-                : 'bg-white/[0.03] border-white/[0.06] text-[#555577] hover:bg-white/[0.05]'
-            }`}
-          >
-            Ausgabe
-          </button>
+            style={{
+              padding: '12px 0', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: 'pointer',
+              background: type === 'expense' ? 'rgba(240,153,123,0.12)' : 'rgba(255,255,255,0.03)',
+              color: type === 'expense' ? '#F0997B' : '#555577',
+              border: `1px solid ${type === 'expense' ? 'rgba(240,153,123,0.3)' : 'rgba(255,255,255,0.06)'}`,
+            }}
+          >Ausgabe</button>
         </div>
 
+        {/* Bezeichnung */}
         <div>
-          <label className={labelClass}>Bezeichnung</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="z.B. Gehalt, Netflix..."
-            className={inputClass}
-          />
+          <label style={labelStyle}>Bezeichnung</label>
+          <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="z.B. Gehalt, Netflix..." style={inputStyle} />
         </div>
 
+        {/* Betrag */}
         <div>
-          <label className={labelClass}>Betrag (€)</label>
-          <input
-            type="text"
-            inputMode="decimal"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            placeholder="0,00"
-            className={inputClass}
-          />
+          <label style={labelStyle}>Betrag (€)</label>
+          <input type="text" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0,00" style={inputStyle} />
         </div>
 
+        {/* Kategorie — nur bei Ausgaben */}
         {type === 'expense' && (
-          <>
-            <div>
-              <label className={labelClass}>Kategorie</label>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className={inputClass}
-              >
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <label className="flex items-center gap-3 cursor-pointer py-1">
-              <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
-                isRecurring ? 'bg-[#7c6fe0] border-[#7c6fe0]' : 'border-white/[0.15] bg-transparent'
-              }`}>
-                {isRecurring && (
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                )}
-              </div>
-              <input
-                type="checkbox"
-                checked={isRecurring}
-                onChange={(e) => setIsRecurring(e.target.checked)}
-                className="sr-only"
-              />
-              <span className="text-sm text-[#c0c0dd]">Wiederkehrend</span>
-            </label>
-
-            {category === 'schulden' && (
-              <div className="space-y-4 border-t border-white/[0.06] pt-4">
-                <div className="text-[11px] text-[#555577] uppercase tracking-[0.1em] font-medium">
-                  Schulden-Details
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className={labelClass}>Gesamtbetrag</label>
-                    <input
-                      type="text"
-                      inputMode="decimal"
-                      value={debtDetails.totalAmount || ''}
-                      onChange={(e) =>
-                        setDebtDetails({ ...debtDetails, totalAmount: parseFloat(e.target.value.replace(',', '.')) || 0 })
-                      }
-                      className={inputClass}
-                    />
-                  </div>
-                  <div>
-                    <label className={labelClass}>Restbetrag</label>
-                    <input
-                      type="text"
-                      inputMode="decimal"
-                      value={debtDetails.remainingAmount || ''}
-                      onChange={(e) =>
-                        setDebtDetails({ ...debtDetails, remainingAmount: parseFloat(e.target.value.replace(',', '.')) || 0 })
-                      }
-                      className={inputClass}
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className={labelClass}>Monatliche Rate</label>
-                  <input
-                    type="text"
-                    inputMode="decimal"
-                    value={debtDetails.monthlyRate || ''}
-                    onChange={(e) =>
-                      setDebtDetails({ ...debtDetails, monthlyRate: parseFloat(e.target.value.replace(',', '.')) || 0 })
-                    }
-                    className={inputClass}
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className={labelClass}>Start</label>
-                    <input
-                      type="date"
-                      value={debtDetails.startDate}
-                      onChange={(e) => setDebtDetails({ ...debtDetails, startDate: e.target.value })}
-                      className={inputClass}
-                    />
-                  </div>
-                  <div>
-                    <label className={labelClass}>Ende</label>
-                    <input
-                      type="date"
-                      value={debtDetails.endDate}
-                      onChange={(e) => setDebtDetails({ ...debtDetails, endDate: e.target.value })}
-                      className={inputClass}
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className={labelClass}>Aktenzeichen</label>
-                  <input
-                    type="text"
-                    value={debtDetails.referenceNumber || ''}
-                    onChange={(e) => setDebtDetails({ ...debtDetails, referenceNumber: e.target.value })}
-                    className={inputClass}
-                  />
-                </div>
-                <div>
-                  <label className={labelClass}>Telefon</label>
-                  <input
-                    type="tel"
-                    value={debtDetails.contactPhone || ''}
-                    onChange={(e) => setDebtDetails({ ...debtDetails, contactPhone: e.target.value })}
-                    className={inputClass}
-                  />
-                </div>
-                <div>
-                  <label className={labelClass}>Kontaktname</label>
-                  <input
-                    type="text"
-                    value={debtDetails.contactName || ''}
-                    onChange={(e) => setDebtDetails({ ...debtDetails, contactName: e.target.value })}
-                    className={inputClass}
-                  />
-                </div>
-              </div>
-            )}
-          </>
+          <div>
+            <label style={labelStyle}>Kategorie</label>
+            <select value={category} onChange={(e) => setCategory(e.target.value)} style={{ ...inputStyle, appearance: 'none', WebkitAppearance: 'none', backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666688' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 16px center' }}>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>{cat.label}</option>
+              ))}
+            </select>
+          </div>
         )}
 
+        {/* Wiederkehrend — für BEIDE Types */}
+        <label style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', padding: '4px 0' }}>
+          <div style={{
+            width: 22, height: 22, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: isRecurring ? '#7c6fe0' : 'transparent',
+            border: `2px solid ${isRecurring ? '#7c6fe0' : 'rgba(255,255,255,0.15)'}`,
+          }}>
+            {isRecurring && (
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+            )}
+          </div>
+          <input type="checkbox" checked={isRecurring} onChange={(e) => setIsRecurring(e.target.checked)} style={{ position: 'absolute', opacity: 0, width: 0, height: 0 }} />
+          <span style={{ fontSize: 14, color: '#c0c0dd' }}>Wiederkehrend (monatlich)</span>
+        </label>
+
+        {/* Schulden-Details — nur bei Kategorie "schulden" */}
+        {type === 'expense' && category === 'schulden' && (
+          <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 16 }}>
+            <div style={sectionTitle}>Schulden-Details</div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
+              <div>
+                <label style={labelStyle}>Gesamtschuld (€)</label>
+                <input type="text" inputMode="decimal" value={debtDetails.totalAmount || ''} onChange={(e) => setDebtDetails({ ...debtDetails, totalAmount: parseFloat(e.target.value.replace(',', '.')) || 0 })} placeholder="z.B. 42.000" style={inputStyle} />
+              </div>
+              <div>
+                <label style={labelStyle}>Restschuld (€)</label>
+                <input type="text" inputMode="decimal" value={debtDetails.remainingAmount || ''} onChange={(e) => setDebtDetails({ ...debtDetails, remainingAmount: parseFloat(e.target.value.replace(',', '.')) || 0 })} placeholder="z.B. 35.000" style={inputStyle} />
+              </div>
+            </div>
+
+            <div style={{ marginBottom: 12 }}>
+              <label style={labelStyle}>Monatliche Rate (€)</label>
+              <input type="text" inputMode="decimal" value={debtDetails.monthlyRate || ''} onChange={(e) => setDebtDetails({ ...debtDetails, monthlyRate: parseFloat(e.target.value.replace(',', '.')) || 0 })} placeholder="z.B. 515" style={inputStyle} />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
+              <div>
+                <label style={labelStyle}>Startdatum</label>
+                <input type="date" value={debtDetails.startDate} onChange={(e) => setDebtDetails({ ...debtDetails, startDate: e.target.value })} style={inputStyle} />
+              </div>
+              <div>
+                <label style={labelStyle}>Enddatum</label>
+                <input type="date" value={debtDetails.endDate} onChange={(e) => setDebtDetails({ ...debtDetails, endDate: e.target.value })} style={inputStyle} />
+              </div>
+            </div>
+
+            {/* Kontakt-Infos */}
+            <div style={{ borderTop: '1px solid rgba(255,255,255,0.04)', paddingTop: 14, marginTop: 4 }}>
+              <div style={sectionTitle}>Kontakt & Referenz</div>
+
+              <div style={{ marginBottom: 12 }}>
+                <label style={labelStyle}>Aktenzeichen</label>
+                <input type="text" value={debtDetails.referenceNumber || ''} onChange={(e) => setDebtDetails({ ...debtDetails, referenceNumber: e.target.value })} placeholder="z.B. DE-2023-441" style={inputStyle} />
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                <div>
+                  <label style={labelStyle}>Kontaktname</label>
+                  <input type="text" value={debtDetails.contactName || ''} onChange={(e) => setDebtDetails({ ...debtDetails, contactName: e.target.value })} placeholder="Name" style={inputStyle} />
+                </div>
+                <div>
+                  <label style={labelStyle}>Telefon</label>
+                  <input type="tel" value={debtDetails.contactPhone || ''} onChange={(e) => setDebtDetails({ ...debtDetails, contactPhone: e.target.value })} placeholder="0800 ..." style={inputStyle} />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Notizen */}
         <div>
-          <label className={labelClass}>Notizen (optional)</label>
-          <input
-            type="text"
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            className={inputClass}
-          />
+          <label style={labelStyle}>Notizen (optional)</label>
+          <input type="text" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Zusätzliche Infos..." style={inputStyle} />
         </div>
 
-        <div className="flex gap-3 pt-3">
+        {/* Buttons */}
+        <div style={{ display: 'flex', gap: 10, paddingTop: 8 }}>
           {editItem && (
             <button
               onClick={handleDelete}
-              className="flex-1 text-sm font-medium py-3 rounded-xl bg-[#F0997B]/8 text-[#F0997B] border border-[#F0997B]/15 hover:bg-[#F0997B]/12"
-            >
-              Löschen
-            </button>
+              style={{ flex: 1, fontSize: 14, fontWeight: 500, padding: '14px 0', borderRadius: 12, background: 'rgba(240,153,123,0.08)', color: '#F0997B', border: '1px solid rgba(240,153,123,0.15)', cursor: 'pointer' }}
+            >Löschen</button>
           )}
           <button
             onClick={handleSave}
-            className="flex-1 text-sm font-semibold py-3 rounded-xl text-white"
-            style={{
-              background: 'linear-gradient(135deg, #7c6fe0 0%, #9b8ff0 100%)',
-              boxShadow: '0 4px 16px rgba(124, 111, 224, 0.3)',
-            }}
-          >
-            {editItem ? 'Speichern' : 'Hinzufügen'}
-          </button>
+            style={{ flex: 1, fontSize: 14, fontWeight: 600, padding: '14px 0', borderRadius: 12, color: '#fff', border: 'none', cursor: 'pointer', background: 'linear-gradient(135deg, #7c6fe0 0%, #9b8ff0 100%)', boxShadow: '0 4px 16px rgba(124, 111, 224, 0.3)' }}
+          >{editItem ? 'Speichern' : 'Hinzufügen'}</button>
         </div>
       </div>
     </Modal>
