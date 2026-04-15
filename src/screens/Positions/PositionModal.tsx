@@ -104,8 +104,8 @@ export default function PositionModal({ isOpen, onClose, editItem }: PositionMod
     onClose();
   };
 
-  const inputClass = 'w-full bg-[#1a1a2e] border border-[#2a2a44] rounded-lg px-3 py-2 text-[12px] text-[#e8e8ff] outline-none focus:border-[#7F77DD] transition-colors';
-  const labelClass = 'text-[10px] text-[#8888aa] uppercase tracking-wider mb-1 block';
+  const inputClass = 'w-full bg-[#0e0e20] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-[#e2e2ff] outline-none transition-all';
+  const labelClass = 'text-[11px] text-[#555577] uppercase tracking-[0.1em] font-medium mb-2 block';
 
   return (
     <Modal
@@ -113,24 +113,24 @@ export default function PositionModal({ isOpen, onClose, editItem }: PositionMod
       onClose={onClose}
       title={editItem ? 'Position bearbeiten' : 'Neue Position'}
     >
-      <div className="space-y-3">
+      <div className="space-y-4">
         <div className="flex gap-2">
           <button
             onClick={() => setType('income')}
-            className={`flex-1 text-[11px] font-medium py-2 rounded-lg border transition-colors ${
+            className={`flex-1 text-sm font-medium py-2.5 rounded-xl border transition-all duration-200 ${
               type === 'income'
-                ? 'bg-[#5DCAA5]/10 border-[#5DCAA5]/40 text-[#5DCAA5]'
-                : 'bg-[#1a1a2e] border-[#2a2a44] text-[#8888aa]'
+                ? 'bg-[#5DCAA5]/10 border-[#5DCAA5]/30 text-[#5DCAA5]'
+                : 'bg-white/[0.03] border-white/[0.06] text-[#555577] hover:bg-white/[0.05]'
             }`}
           >
             Einnahme
           </button>
           <button
             onClick={() => setType('expense')}
-            className={`flex-1 text-[11px] font-medium py-2 rounded-lg border transition-colors ${
+            className={`flex-1 text-sm font-medium py-2.5 rounded-xl border transition-all duration-200 ${
               type === 'expense'
-                ? 'bg-[#F0997B]/10 border-[#F0997B]/40 text-[#F0997B]'
-                : 'bg-[#1a1a2e] border-[#2a2a44] text-[#8888aa]'
+                ? 'bg-[#F0997B]/10 border-[#F0997B]/30 text-[#F0997B]'
+                : 'bg-white/[0.03] border-white/[0.06] text-[#555577] hover:bg-white/[0.05]'
             }`}
           >
             Ausgabe
@@ -177,19 +177,28 @@ export default function PositionModal({ isOpen, onClose, editItem }: PositionMod
               </select>
             </div>
 
-            <label className="flex items-center gap-2 cursor-pointer">
+            <label className="flex items-center gap-3 cursor-pointer py-1">
+              <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
+                isRecurring ? 'bg-[#7c6fe0] border-[#7c6fe0]' : 'border-white/[0.15] bg-transparent'
+              }`}>
+                {isRecurring && (
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                )}
+              </div>
               <input
                 type="checkbox"
                 checked={isRecurring}
                 onChange={(e) => setIsRecurring(e.target.checked)}
-                className="accent-[#7F77DD]"
+                className="sr-only"
               />
-              <span className="text-[11px] text-[#e8e8ff]">Wiederkehrend</span>
+              <span className="text-sm text-[#c0c0dd]">Wiederkehrend</span>
             </label>
 
             {category === 'schulden' && (
-              <div className="space-y-3 border-t border-[#2a2a44] pt-3">
-                <div className="text-[10px] text-[#8888aa] uppercase tracking-wider">
+              <div className="space-y-4 border-t border-white/[0.06] pt-4">
+                <div className="text-[11px] text-[#555577] uppercase tracking-[0.1em] font-medium">
                   Schulden-Details
                 </div>
                 <div className="grid grid-cols-2 gap-2">
@@ -292,18 +301,22 @@ export default function PositionModal({ isOpen, onClose, editItem }: PositionMod
           />
         </div>
 
-        <div className="flex gap-2 pt-2">
+        <div className="flex gap-3 pt-3">
           {editItem && (
             <button
               onClick={handleDelete}
-              className="flex-1 text-[11px] font-medium py-2.5 rounded-lg bg-[#F0997B]/10 text-[#F0997B] border border-[#F0997B]/30"
+              className="flex-1 text-sm font-medium py-3 rounded-xl bg-[#F0997B]/8 text-[#F0997B] border border-[#F0997B]/15 hover:bg-[#F0997B]/12"
             >
               Löschen
             </button>
           )}
           <button
             onClick={handleSave}
-            className="flex-1 text-[11px] font-medium py-2.5 rounded-lg bg-[#7F77DD] text-[#e8e8ff]"
+            className="flex-1 text-sm font-semibold py-3 rounded-xl text-white"
+            style={{
+              background: 'linear-gradient(135deg, #7c6fe0 0%, #9b8ff0 100%)',
+              boxShadow: '0 4px 16px rgba(124, 111, 224, 0.3)',
+            }}
           >
             {editItem ? 'Speichern' : 'Hinzufügen'}
           </button>

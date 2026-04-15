@@ -9,15 +9,23 @@ import Settings from './screens/Settings/index';
 
 function LoginScreen() {
   return (
-    <div className="min-h-screen bg-[#0d0d1f] flex items-center justify-center">
+    <div className="min-h-screen bg-[#0a0a1a] flex items-center justify-center">
       <div className="text-center px-8">
-        <h1 className="text-2xl font-semibold text-[#e8e8ff] mb-2">Haushalt</h1>
-        <p className="text-[12px] text-[#8888aa] mb-8">
+        {/* Logo */}
+        <div className="w-20 h-20 mx-auto mb-6 rounded-3xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #141428 0%, #1a1a36 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
+          <span className="text-3xl font-bold text-[#b8b2f0]">H</span>
+        </div>
+        <h1 className="text-2xl font-bold text-[#e2e2ff] mb-2 tracking-tight">Haushalt</h1>
+        <p className="text-sm text-[#555577] mb-10 leading-relaxed">
           Deine persönliche Finanzübersicht
         </p>
         <button
           onClick={() => netlifyIdentity.open()}
-          className="text-[12px] font-medium px-6 py-3 rounded-lg bg-[#7F77DD] text-[#e8e8ff]"
+          className="text-sm font-semibold px-8 py-3.5 rounded-2xl text-white"
+          style={{
+            background: 'linear-gradient(135deg, #7c6fe0 0%, #9b8ff0 100%)',
+            boxShadow: '0 8px 24px rgba(124, 111, 224, 0.3)',
+          }}
         >
           Anmelden
         </button>
@@ -74,8 +82,13 @@ function App() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#0d0d1f] flex items-center justify-center">
-        <div className="text-[#8888aa] text-xs">Laden...</div>
+      <div className="min-h-screen bg-[#0a0a1a] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #141428 0%, #1a1a36 100%)' }}>
+            <span className="text-lg font-bold text-[#b8b2f0]">H</span>
+          </div>
+          <div className="text-[#555577] text-xs">Laden...</div>
+        </div>
       </div>
     );
   }
@@ -85,7 +98,7 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0d0d1f] max-w-[430px] mx-auto relative">
+    <div className="min-h-screen bg-[#0a0a1a] max-w-[430px] mx-auto relative">
       {activeTab === 'overview' && <Overview />}
       {activeTab === 'positions' && <Positions />}
       {activeTab === 'debts' && <Debts />}

@@ -61,28 +61,28 @@ export default function Positions() {
   ];
 
   return (
-    <div className="p-3.5 pb-24">
+    <div className="px-5 pt-4 pb-28">
       <PageHeader
         title="Alle Positionen"
         right={
           <button
             onClick={handleAdd}
-            className="text-[11px] text-[#AFA9EC] font-medium"
+            className="text-sm text-[#b8b2f0] font-semibold hover:text-[#d0ccf8]"
           >
             + Neu
           </button>
         }
       />
 
-      <div className="flex gap-1.5 overflow-x-auto pb-3 mb-3 scrollbar-hide">
+      <div className="flex gap-2 overflow-x-auto pb-4 mb-2 scrollbar-hide">
         {filterTabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setFilter(tab.id)}
-            className={`text-[9px] font-medium px-2.5 py-1 rounded-full whitespace-nowrap transition-colors ${
+            className={`text-xs font-medium px-3.5 py-1.5 rounded-xl whitespace-nowrap transition-all duration-200 ${
               filter === tab.id
-                ? 'bg-[#7F77DD]/20 text-[#AFA9EC] border border-[#7F77DD]/40'
-                : 'bg-[#1a1a2e] text-[#8888aa] border border-[#2a2a44]'
+                ? 'bg-[#7c6fe0]/15 text-[#b8b2f0] border border-[#7c6fe0]/30'
+                : 'bg-white/[0.03] text-[#555577] border border-white/[0.06] hover:bg-white/[0.06]'
             }`}
           >
             {tab.label}
@@ -99,21 +99,21 @@ export default function Positions() {
       ) : (
         <div>
           {filteredIncomes.length > 0 && (
-            <div className="mb-4">
-              <div className="text-[10px] text-[#8888aa] uppercase tracking-wider mb-2">
+            <div className="mb-6">
+              <div className="text-[11px] text-[#555577] uppercase tracking-[0.12em] font-semibold mb-3">
                 Einnahmen
               </div>
               {filteredIncomes.map((inc) => (
                 <div
                   key={inc.id}
                   onClick={() => handleEdit(inc, 'income')}
-                  className="flex items-center justify-between py-2.5 border-b border-[#2a2a44]/50 cursor-pointer active:opacity-70"
+                  className="flex items-center justify-between py-3.5 border-b border-white/[0.04] cursor-pointer active:opacity-70 hover:bg-white/[0.02] -mx-2 px-2 rounded-lg transition-colors"
                 >
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-2 h-2 rounded-full bg-[#5DCAA5]" />
-                    <span className="text-[12px] text-[#e8e8ff]">{inc.name}</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-2.5 h-2.5 rounded-full bg-[#5DCAA5] shadow-[0_0_6px_rgba(93,202,165,0.4)]" />
+                    <span className="text-sm text-[#e2e2ff] font-medium">{inc.name}</span>
                   </div>
-                  <span className="text-[12px] font-medium text-[#5DCAA5]">
+                  <span className="text-sm font-semibold text-[#5DCAA5]">
                     + {formatEuro(inc.amount)}
                   </span>
                 </div>
@@ -124,30 +124,33 @@ export default function Positions() {
           {Object.entries(expensesByCategory).map(([catId, items]) => {
             const cat = categories.find((c) => c.id === catId);
             return (
-              <div key={catId} className="mb-4">
-                <div className="text-[10px] text-[#8888aa] uppercase tracking-wider mb-2">
-                  {cat?.label || catId}
+              <div key={catId} className="mb-6">
+                <div className="text-[11px] text-[#555577] uppercase tracking-[0.12em] font-semibold mb-3">
+                  Ausgaben
                 </div>
                 {items.map((exp) => (
                   <div
                     key={exp.id}
                     onClick={() => handleEdit(exp, 'expense')}
-                    className="flex items-center justify-between py-2.5 border-b border-[#2a2a44]/50 cursor-pointer active:opacity-70"
+                    className="flex items-center justify-between py-3.5 border-b border-white/[0.04] cursor-pointer active:opacity-70 hover:bg-white/[0.02] -mx-2 px-2 rounded-lg transition-colors"
                   >
-                    <div className="flex items-center gap-2.5">
+                    <div className="flex items-center gap-3">
                       <div
-                        className="w-2 h-2 rounded-full"
-                        style={{ backgroundColor: cat?.dotColor || '#8888aa' }}
+                        className="w-2.5 h-2.5 rounded-full"
+                        style={{
+                          backgroundColor: cat?.dotColor || '#555577',
+                          boxShadow: `0 0 6px ${cat?.dotColor || '#555577'}66`,
+                        }}
                       />
-                      <span className="text-[12px] text-[#e8e8ff]">{exp.name}</span>
+                      <span className="text-sm text-[#e2e2ff] font-medium">{exp.name}</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[12px] text-[#e8e8ff]">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-sm text-[#c0c0dd]">
                         {formatEuro(exp.amount)}
                       </span>
                       {cat && (
                         <Badge
-                          label={cat.label.length > 5 ? cat.label.substring(0, 5) : cat.label}
+                          label={cat.label.length > 6 ? cat.label.substring(0, 6) : cat.label}
                           bgColor={cat.bgColor}
                           textColor={cat.textColor}
                         />

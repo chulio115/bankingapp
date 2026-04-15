@@ -63,23 +63,25 @@ export default function Settings() {
     setShowAddCat(false);
   };
 
-  const sectionLabel = 'text-[10px] text-[#8888aa] uppercase tracking-wider mb-2';
+  const sectionLabel = 'text-[11px] text-[#555577] uppercase tracking-[0.12em] font-semibold mb-3';
 
   return (
-    <div className="p-3.5 pb-24">
+    <div className="px-5 pt-4 pb-28">
       <PageHeader title="Einstellungen" />
 
-      <div className="mb-5">
+      {/* Profil */}
+      <div className="mb-6">
         <div className={sectionLabel}>Profil</div>
-        <div className="flex items-center justify-between py-2">
-          <span className="text-[13px] text-[#e8e8ff]">{user?.name || 'User'}</span>
-          <span className="text-[11px] text-[#8888aa]">{user?.email || ''}</span>
+        <div className="flex items-center justify-between py-3 px-4 bg-[#141428] border border-white/[0.06] rounded-2xl">
+          <span className="text-sm text-[#e2e2ff] font-semibold">{user?.name || 'User'}</span>
+          <span className="text-xs text-[#666688]">{user?.email || ''}</span>
         </div>
       </div>
 
-      <div className="border-t border-[#2a2a44] pt-4 mb-5">
+      {/* Kategorien */}
+      <div className="border-t border-white/[0.04] pt-5 mb-6">
         <div className={sectionLabel}>Kategorien</div>
-        <div className="flex flex-wrap gap-2 mb-3">
+        <div className="flex flex-wrap gap-2">
           {categories.map((cat) => (
             <Badge
               key={cat.id}
@@ -90,29 +92,30 @@ export default function Settings() {
           ))}
           <button
             onClick={() => setShowAddCat(true)}
-            className="text-[9px] font-medium px-2 py-0.5 rounded border border-[#2a2a44] text-[#8888aa]"
+            className="inline-flex items-center text-[11px] font-medium px-2.5 py-1 rounded-lg border border-dashed border-white/[0.1] text-[#555577] hover:border-white/[0.2] hover:text-[#888899]"
           >
             + Neu
           </button>
         </div>
       </div>
 
-      <div className="border-t border-[#2a2a44] pt-4 mb-5">
+      {/* Monat */}
+      <div className="border-t border-white/[0.04] pt-5 mb-6">
         <div className={sectionLabel}>Monat</div>
-        <div className="flex items-center justify-between py-2">
-          <span className="text-[13px] text-[#e8e8ff] font-medium">
+        <div className="flex items-center justify-between py-3 px-4 bg-[#141428] border border-white/[0.06] rounded-2xl">
+          <span className="text-sm text-[#e2e2ff] font-semibold">
             {formatMonthShort(currentMonth)}
           </span>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1">
             <button
               onClick={() => setCurrentMonth(getAdjacentMonth(currentMonth, -1))}
-              className="text-[#8888aa] text-sm"
+              className="w-8 h-8 flex items-center justify-center rounded-xl bg-white/[0.04] text-[#666688] hover:bg-white/[0.08] text-sm"
             >
               ←
             </button>
             <button
               onClick={() => setCurrentMonth(getAdjacentMonth(currentMonth, 1))}
-              className="text-[#8888aa] text-sm"
+              className="w-8 h-8 flex items-center justify-center rounded-xl bg-white/[0.04] text-[#666688] hover:bg-white/[0.08] text-sm"
             >
               →
             </button>
@@ -120,24 +123,34 @@ export default function Settings() {
         </div>
       </div>
 
-      <div className="border-t border-[#2a2a44] pt-4 mb-5">
+      {/* Daten */}
+      <div className="border-t border-white/[0.04] pt-5 mb-6">
         <div className={sectionLabel}>Daten</div>
         <button
           onClick={handleExport}
-          className="flex items-center justify-between w-full py-2"
+          className="flex items-center justify-between w-full py-3.5 px-4 bg-[#141428] border border-white/[0.06] rounded-2xl hover:border-white/[0.1] transition-colors"
         >
-          <span className="text-[13px] text-[#e8e8ff]">Export als JSON</span>
-          <span className="text-[#8888aa]">↓</span>
+          <span className="text-sm text-[#e2e2ff] font-medium">Export als JSON</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#666688" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
         </button>
       </div>
 
-      <div className="border-t border-[#2a2a44] pt-4">
+      {/* Abmelden */}
+      <div className="border-t border-white/[0.04] pt-5">
         <button
           onClick={handleLogout}
-          className="flex items-center justify-between w-full py-2"
+          className="flex items-center justify-between w-full py-3.5 px-4 rounded-2xl border border-[#F0997B]/10 hover:bg-[#F0997B]/5 transition-colors"
         >
-          <span className="text-[13px] text-[#e8e8ff]">Abmelden</span>
-          <span className="text-[#F0997B]">→</span>
+          <span className="text-sm text-[#e2e2ff] font-medium">Abmelden</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F0997B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
         </button>
       </div>
 
@@ -146,9 +159,9 @@ export default function Settings() {
         onClose={() => setShowAddCat(false)}
         title="Neue Kategorie"
       >
-        <div className="space-y-3">
+        <div className="space-y-5">
           <div>
-            <label className="text-[10px] text-[#8888aa] uppercase tracking-wider mb-1 block">
+            <label className="text-[11px] text-[#555577] uppercase tracking-[0.1em] font-medium mb-2 block">
               Name
             </label>
             <input
@@ -156,27 +169,28 @@ export default function Settings() {
               value={newCatName}
               onChange={(e) => setNewCatName(e.target.value)}
               placeholder="z.B. Transport"
-              className="w-full bg-[#1a1a2e] border border-[#2a2a44] rounded-lg px-3 py-2 text-[12px] text-[#e8e8ff] outline-none focus:border-[#7F77DD]"
+              className="w-full bg-[#0e0e20] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-[#e2e2ff] outline-none transition-all"
             />
           </div>
 
           <div>
-            <label className="text-[10px] text-[#8888aa] uppercase tracking-wider mb-1 block">
+            <label className="text-[11px] text-[#555577] uppercase tracking-[0.1em] font-medium mb-2 block">
               Farbe
             </label>
-            <div className="flex gap-2 flex-wrap">
+            <div className="flex gap-2.5 flex-wrap">
               {PALETTE_COLORS.map((color, i) => (
                 <button
                   key={i}
                   onClick={() => setSelectedColor(i)}
-                  className="w-7 h-7 rounded-full border-2 transition-colors"
+                  className="w-9 h-9 rounded-xl border-2 transition-all duration-200 flex items-center justify-center"
                   style={{
                     backgroundColor: color.bgColor,
                     borderColor: i === selectedColor ? color.textColor : 'transparent',
+                    boxShadow: i === selectedColor ? `0 0 12px ${color.textColor}33` : 'none',
                   }}
                 >
                   <div
-                    className="w-3 h-3 rounded-full mx-auto"
+                    className="w-3.5 h-3.5 rounded-full"
                     style={{ backgroundColor: color.textColor }}
                   />
                 </button>
@@ -186,7 +200,11 @@ export default function Settings() {
 
           <button
             onClick={handleAddCategory}
-            className="w-full text-[11px] font-medium py-2.5 rounded-lg bg-[#7F77DD] text-[#e8e8ff]"
+            className="w-full text-sm font-semibold py-3 rounded-xl text-white transition-all"
+            style={{
+              background: 'linear-gradient(135deg, #7c6fe0 0%, #9b8ff0 100%)',
+              boxShadow: '0 4px 16px rgba(124, 111, 224, 0.3)',
+            }}
           >
             Hinzufügen
           </button>

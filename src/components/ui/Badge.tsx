@@ -8,8 +8,8 @@ interface BadgeProps {
 export default function Badge({ label, bgColor, textColor, className = '' }: BadgeProps) {
   return (
     <span
-      className={`inline-block text-[9px] font-medium rounded px-1.5 py-0.5 ${className}`}
-      style={{ backgroundColor: bgColor, color: textColor }}
+      className={`inline-flex items-center text-[11px] font-medium rounded-lg px-2.5 py-1 border ${className}`}
+      style={{ backgroundColor: bgColor, color: textColor, borderColor: `${textColor}22` }}
     >
       {label}
     </span>

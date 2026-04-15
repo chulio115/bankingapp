@@ -10,26 +10,27 @@ interface DonutChartProps {
 export default function DonutChart({ data, total, label }: DonutChartProps) {
   if (data.length === 0) {
     return (
-      <div className="flex items-center justify-center h-[200px] text-[#8888aa] text-xs">
+      <div className="flex items-center justify-center h-[220px] text-[#555577] text-sm">
         Keine Daten
       </div>
     );
   }
 
   return (
-    <div className="relative w-full h-[200px]">
+    <div className="relative w-full h-[220px]">
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
             data={data}
             cx="50%"
             cy="50%"
-            innerRadius="60%"
-            outerRadius="85%"
-            paddingAngle={2}
+            innerRadius="58%"
+            outerRadius="88%"
+            paddingAngle={3}
             strokeWidth={0}
             dataKey="value"
-            animationDuration={600}
+            animationDuration={800}
+            animationEasing="ease-out"
           >
             {data.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={entry.fill} />
@@ -38,10 +39,10 @@ export default function DonutChart({ data, total, label }: DonutChartProps) {
         </PieChart>
       </ResponsiveContainer>
       <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-        <span className="text-[16px] font-semibold text-[#e8e8ff]">
+        <span className="text-xl font-bold text-[#e2e2ff] tracking-tight">
           {formatEuro(total)}
         </span>
-        <span className="text-[10px] text-[#8888aa]">{label}</span>
+        <span className="text-xs text-[#666688] mt-0.5">{label}</span>
       </div>
     </div>
   );
