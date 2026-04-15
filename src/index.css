@@ -78,10 +78,10 @@ input:focus, select:focus, textarea:focus {
   padding-bottom: env(safe-area-inset-bottom, 8px);
 }
 
-/* Kill Netlify Identity widget overlay — blocks touches in iOS PWA */
-.netlify-identity-widget,
-#netlify-identity-widget,
-.netlify-identity-menu {
+/* Kill Netlify Identity widget iframe overlay — blocks touches in iOS PWA */
+.netlify-identity-widget iframe,
+#netlify-identity-widget iframe,
+.netlify-identity-menu iframe {
   display: none !important;
   pointer-events: none !important;
 }
