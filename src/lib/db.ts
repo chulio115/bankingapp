@@ -28,8 +28,27 @@ interface DBCategory {
   dot_color: string;
 }
 
+// LocalStorage fallback
+const shouldUseLocalStorage = () => {
+  const connectionString = import.meta.env.VITE_NEON_DATABASE_URL || process.env.VITE_NEON_DATABASE_URL;
+  return !connectionString || connectionString.includes('localhost');
+};
+
+const getLocalStorageKey = (key: string) => `haushalt_${key}`;
+
+const loadFromLocalStorage = (userId: string) => {
+  const data = localStorage.getItem(getLocalStorageKey(userId));
+  return data ? JSON.parse(data) : null;
+};
+
+const saveToLocalStorage = (userId: string, data: { incomes: Income[]; expenses: Expense[]; categories: CategoryConfig[] }) => {
+  localStorage.setItem(getLocalStorageKey(userId), JSON.stringify(data));
+};
+
 // Ensure user exists in Neon when they log in
 export async function ensureUser(userId: string, email: string, name: string) {
+  if (shouldUseLocalStorage()) return;
+
   try {
     await sql`
       INSERT INTO users (id, email, name)
@@ -45,6 +64,11 @@ export async function ensureUser(userId: string, email: string, name: string) {
 
 // Load all data for a user
 export async function loadUserData(userId: string) {
+  if (shouldUseLocalStorage()) {
+    const data = loadFromLocalStorage(userId);
+    return data || { categories: [], incomes: [], expenses: [] };
+  }
+
   try {
     const [categories, incomes, expenses] = await Promise.all([
       sql`SELECT * FROM categories WHERE user_id = ${userId}`,
@@ -79,25 +103,43 @@ export async function loadUserData(userId: string) {
       })),
     };
   } catch (error) {
-    console.error('Error loading user data:', error);
-    return { categories: [], incomes: [], expenses: [] };
+    console.error('Error loading user data from Neon, falling back to localStorage:', error);
+    const data = loadFromLocalStorage(userId);
+    return data || { categories: [], incomes: [], expenses: [] };
   }
 }
 
 // Add income
 export async function addIncome(userId: string, income: Income) {
+  if (shouldUseLocalStorage()) {
+    const data = loadFromLocalStorage(userId) || { incomes: [], expenses: [], categories: [] };
+    data.incomes.push(income);
+    saveToLocalStorage(userId, data);
+    return;
+  }
+
   try {
     await sql`
       INSERT INTO incomes (id, user_id, name, amount, month, notes)
       VALUES (${income.id}, ${userId}, ${income.name}, ${income.amount}, ${income.month}, ${income.notes || ''})
     `;
   } catch (error) {
-    console.error('Error adding income:', error);
+    console.error('Error adding income to Neon, using localStorage fallback:', error);
+    const data = loadFromLocalStorage(userId) || { incomes: [], expenses: [], categories: [] };
+    data.incomes.push(income);
+    saveToLocalStorage(userId, data);
   }
 }
 
 // Update income
 export async function updateIncome(userId: string, income: Income) {
+  if (shouldUseLocalStorage()) {
+    const data = loadFromLocalStorage(userId) || { incomes: [], expenses: [], categories: [] };
+    data.incomes = data.incomes.map((i: Income) => i.id === income.id ? income : i);
+    saveToLocalStorage(userId, data);
+    return;
+  }
+
   try {
     await sql`
       UPDATE incomes
@@ -105,21 +147,41 @@ export async function updateIncome(userId: string, income: Income) {
       WHERE id = ${income.id} AND user_id = ${userId}
     `;
   } catch (error) {
-    console.error('Error updating income:', error);
+    console.error('Error updating income in Neon, using localStorage fallback:', error);
+    const data = loadFromLocalStorage(userId) || { incomes: [], expenses: [], categories: [] };
+    data.incomes = data.incomes.map((i: Income) => i.id === income.id ? income : i);
+    saveToLocalStorage(userId, data);
   }
 }
 
 // Delete income
 export async function deleteIncome(userId: string, id: string) {
+  if (shouldUseLocalStorage()) {
+    const data = loadFromLocalStorage(userId) || { incomes: [], expenses: [], categories: [] };
+    data.incomes = data.incomes.filter((i: Income) => i.id !== id);
+    saveToLocalStorage(userId, data);
+    return;
+  }
+
   try {
     await sql`DELETE FROM incomes WHERE id = ${id} AND user_id = ${userId}`;
   } catch (error) {
-    console.error('Error deleting income:', error);
+    console.error('Error deleting income from Neon, using localStorage fallback:', error);
+    const data = loadFromLocalStorage(userId) || { incomes: [], expenses: [], categories: [] };
+    data.incomes = data.incomes.filter((i: Income) => i.id !== id);
+    saveToLocalStorage(userId, data);
   }
 }
 
 // Add expense
 export async function addExpense(userId: string, expense: Expense) {
+  if (shouldUseLocalStorage()) {
+    const data = loadFromLocalStorage(userId) || { incomes: [], expenses: [], categories: [] };
+    data.expenses.push(expense);
+    saveToLocalStorage(userId, data);
+    return;
+  }
+
   try {
     await sql`
       INSERT INTO expenses (id, user_id, name, amount, category_id, month, is_recurring, notes, debt_details)
@@ -136,12 +198,22 @@ export async function addExpense(userId: string, expense: Expense) {
       )
     `;
   } catch (error) {
-    console.error('Error adding expense:', error);
+    console.error('Error adding expense to Neon, using localStorage fallback:', error);
+    const data = loadFromLocalStorage(userId) || { incomes: [], expenses: [], categories: [] };
+    data.expenses.push(expense);
+    saveToLocalStorage(userId, data);
   }
 }
 
 // Update expense
 export async function updateExpense(userId: string, expense: Expense) {
+  if (shouldUseLocalStorage()) {
+    const data = loadFromLocalStorage(userId) || { incomes: [], expenses: [], categories: [] };
+    data.expenses = data.expenses.map((e: Expense) => e.id === expense.id ? expense : e);
+    saveToLocalStorage(userId, data);
+    return;
+  }
+
   try {
     await sql`
       UPDATE expenses
@@ -155,27 +227,50 @@ export async function updateExpense(userId: string, expense: Expense) {
       WHERE id = ${expense.id} AND user_id = ${userId}
     `;
   } catch (error) {
-    console.error('Error updating expense:', error);
+    console.error('Error updating expense in Neon, using localStorage fallback:', error);
+    const data = loadFromLocalStorage(userId) || { incomes: [], expenses: [], categories: [] };
+    data.expenses = data.expenses.map((e: Expense) => e.id === expense.id ? expense : e);
+    saveToLocalStorage(userId, data);
   }
 }
 
 // Delete expense
 export async function deleteExpense(userId: string, id: string) {
+  if (shouldUseLocalStorage()) {
+    const data = loadFromLocalStorage(userId) || { incomes: [], expenses: [], categories: [] };
+    data.expenses = data.expenses.filter((e: Expense) => e.id !== id);
+    saveToLocalStorage(userId, data);
+    return;
+  }
+
   try {
     await sql`DELETE FROM expenses WHERE id = ${id} AND user_id = ${userId}`;
   } catch (error) {
-    console.error('Error deleting expense:', error);
+    console.error('Error deleting expense from Neon, using localStorage fallback:', error);
+    const data = loadFromLocalStorage(userId) || { incomes: [], expenses: [], categories: [] };
+    data.expenses = data.expenses.filter((e: Expense) => e.id !== id);
+    saveToLocalStorage(userId, data);
   }
 }
 
 // Add category
 export async function addCategory(userId: string, category: CategoryConfig) {
+  if (shouldUseLocalStorage()) {
+    const data = loadFromLocalStorage(userId) || { incomes: [], expenses: [], categories: [] };
+    data.categories.push(category);
+    saveToLocalStorage(userId, data);
+    return;
+  }
+
   try {
     await sql`
       INSERT INTO categories (id, user_id, label, bg_color, text_color, dot_color)
       VALUES (${category.id}, ${userId}, ${category.label}, ${category.bgColor}, ${category.textColor}, ${category.dotColor})
     `;
   } catch (error) {
-    console.error('Error adding category:', error);
+    console.error('Error adding category to Neon, using localStorage fallback:', error);
+    const data = loadFromLocalStorage(userId) || { incomes: [], expenses: [], categories: [] };
+    data.categories.push(category);
+    saveToLocalStorage(userId, data);
   }
 }

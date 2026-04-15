@@ -50,9 +50,12 @@ function App() {
         email: existingUser.email || '',
       };
       setUser(userData);
-      ensureUser(existingUser.id, existingUser.email || '', userData.name);
-      loadData(existingUser.id);
-      setLoading(false);
+      ensureUser(existingUser.id, existingUser.email || '', userData.name)
+        .then(() => loadData(existingUser.id))
+        .catch((err) => {
+          console.error('Error loading data for existing user:', err);
+          setLoading(false);
+        });
     }
 
     netlifyIdentity.on('login', (u) => {
@@ -63,10 +66,15 @@ function App() {
           email: u.email || '',
         };
         setUser(userData);
-        ensureUser(u.id, u.email || '', userData.name);
-        loadData(u.id);
+        ensureUser(u.id, u.email || '', userData.name)
+          .then(() => loadData(u.id))
+          .catch((err) => {
+            console.error('Error loading data after login:', err);
+            setLoading(false);
+          });
+      } else {
+        setLoading(false);
       }
-      setLoading(false);
       netlifyIdentity.close();
     });
 
@@ -83,10 +91,15 @@ function App() {
           email: u.email || '',
         };
         setUser(userData);
-        ensureUser(u.id, u.email || '', userData.name);
-        loadData(u.id);
+        ensureUser(u.id, u.email || '', userData.name)
+          .then(() => loadData(u.id))
+          .catch((err) => {
+            console.error('Error loading data after close:', err);
+            setLoading(false);
+          });
+      } else {
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     // init AFTER setting up event handlers — will NOT auto-open if user already resolved above
