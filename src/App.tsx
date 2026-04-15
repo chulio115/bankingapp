@@ -10,27 +10,71 @@ import Debts from './screens/Debts/index';
 import Settings from './screens/Settings/index';
 
 function LoginScreen() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleLogin = async () => {
+    if (!email || !password) return;
+    setError('');
+    setLoading(true);
+    try {
+      await (netlifyIdentity as any).auth.login(email, password, true);
+      window.location.reload();
+    } catch (err: unknown) {
+      setError((err as Error)?.message || 'Login fehlgeschlagen');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-[#0a0a1a] flex items-center justify-center">
-      <div className="text-center px-8">
+    <div style={{ minHeight: '100dvh', background: '#0a0a1a', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+      <div style={{ width: '100%', maxWidth: 320, textAlign: 'center' }}>
         {/* Logo */}
-        <div className="w-20 h-20 mx-auto mb-6 rounded-3xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #141428 0%, #1a1a36 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
-          <span className="text-3xl font-bold text-[#b8b2f0]">H</span>
+        <div style={{ width: 80, height: 80, margin: '0 auto 24px', borderRadius: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #141428 0%, #1a1a36 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
+          <span style={{ fontSize: 32, fontWeight: 700, color: '#b8b2f0' }}>H</span>
         </div>
-        <h1 className="text-2xl font-bold text-[#e2e2ff] mb-2 tracking-tight">Haushalt</h1>
-        <p className="text-sm text-[#555577] mb-10 leading-relaxed">
+        <h1 style={{ fontSize: 24, fontWeight: 700, color: '#e2e2ff', marginBottom: 8, letterSpacing: '-0.01em', margin: 0 }}>Haushalt</h1>
+        <p style={{ fontSize: 14, color: '#555577', marginBottom: 40, lineHeight: 1.5 }}>
           Deine persönliche Finanzübersicht
         </p>
-        <button
-          onClick={() => netlifyIdentity.open()}
-          className="text-sm font-semibold px-8 py-3.5 rounded-2xl text-white"
-          style={{
-            background: 'linear-gradient(135deg, #7c6fe0 0%, #9b8ff0 100%)',
-            boxShadow: '0 8px 24px rgba(124, 111, 224, 0.3)',
-          }}
-        >
-          Anmelden
-        </button>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
+            style={{ width: '100%', background: '#0e0e20', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '14px 16px', fontSize: 15, color: '#e2e2ff', outline: 'none', fontFamily: 'inherit' }}
+            autoCapitalize="none"
+            autoComplete="email"
+          />
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Passwort"
+            style={{ width: '100%', background: '#0e0e20', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '14px 16px', fontSize: 15, color: '#e2e2ff', outline: 'none', fontFamily: 'inherit' }}
+            autoComplete="current-password"
+          />
+          {error && <div style={{ fontSize: 12, color: '#F0997B' }}>{error}</div>}
+          <button
+            onClick={handleLogin}
+            disabled={loading || !email || !password}
+            style={{ fontSize: 14, fontWeight: 600, padding: '14px 0', borderRadius: 12, color: '#fff', border: 'none', cursor: loading || !email || !password ? 'not-allowed' : 'pointer', background: 'linear-gradient(135deg, #7c6fe0 0%, #9b8ff0 100%)', boxShadow: '0 8px 24px rgba(124, 111, 224, 0.3)', opacity: loading || !email || !password ? 0.5 : 1 }}
+          >
+            {loading ? 'Laden...' : 'Anmelden'}
+          </button>
+        </div>
+
+        <div style={{ marginTop: 24, fontSize: 12, color: '#555577' }}>
+          Noch kein Account?{' '}
+          <a href="https://app.netlify.com/identity" target="_blank" rel="noopener noreferrer" style={{ color: '#b8b2f0', textDecoration: 'none' }}>
+            Hier registrieren
+          </a>
+        </div>
       </div>
     </div>
   );
