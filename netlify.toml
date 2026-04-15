@@ -2,3 +2,13 @@
   from = "/*"
   to = "/index.html"
   status = 200
+
+[[redirects]]
+  from = "/.netlify/identity"
+  to = "/.netlify/identity"
+  status = 200
+
+[[redirects]]
+  from = "/.netlify/git-gateway"
+  to = "/.netlify/git-gateway"
+  status = 200
