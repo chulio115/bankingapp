@@ -52,6 +52,7 @@ function App() {
       setUser(userData);
       ensureUser(existingUser.id, existingUser.email || '', userData.name)
         .then(() => loadData(existingUser.id))
+        .then(() => setLoading(false))
         .catch((err) => {
           console.error('Error loading data for existing user:', err);
           setLoading(false);
@@ -68,6 +69,7 @@ function App() {
         setUser(userData);
         ensureUser(u.id, u.email || '', userData.name)
           .then(() => loadData(u.id))
+          .then(() => setLoading(false))
           .catch((err) => {
             console.error('Error loading data after login:', err);
             setLoading(false);
@@ -93,6 +95,7 @@ function App() {
         setUser(userData);
         ensureUser(u.id, u.email || '', userData.name)
           .then(() => loadData(u.id))
+          .then(() => setLoading(false))
           .catch((err) => {
             console.error('Error loading data after close:', err);
             setLoading(false);
