@@ -9,62 +9,90 @@ import Positions from './screens/Positions/index';
 import Debts from './screens/Debts/index';
 import Settings from './screens/Settings/index';
 
-function LoginScreen({ onLogin }: { onLogin: (email: string, password: string) => void }) {
+async function goTrueLogin(email: string, password: string) {
+  const res = await fetch('/.netlify/identity/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `grant_type=password&email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error_description || err.msg || 'Login fehlgeschlagen');
+  }
+  const tokenData = await res.json();
+
+  const userRes = await fetch('/.netlify/identity/user', {
+    headers: { Authorization: `Bearer ${tokenData.access_token}` },
+  });
+  if (!userRes.ok) throw new Error('Benutzer konnte nicht geladen werden');
+  const userData = await userRes.json();
+
+  localStorage.setItem('gotrue.user', JSON.stringify({
+    ...userData,
+    token: {
+      access_token: tokenData.access_token,
+      token_type: tokenData.token_type,
+      expires_in: tokenData.expires_in,
+      refresh_token: tokenData.refresh_token,
+      expires_at: Date.now() + tokenData.expires_in * 1000,
+    },
+  }));
+
+  return { id: userData.id, email: userData.email, name: userData.user_metadata?.full_name || userData.email?.split('@')[0] || 'User' };
+}
+
+function LoginScreen({ onLogin }: { onLogin: (email: string, password: string) => Promise<void> }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) return;
+    console.log('[Login] Submitting...', { email });
     setLoading(true);
     setError('');
-    onLogin(email, password);
+    try {
+      await onLogin(email, password);
+      console.log('[Login] Success');
+    } catch (err) {
+      console.error('[Login] Error:', err);
+      setError((err as Error)?.message || 'Login fehlgeschlagen');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a1a] flex items-center justify-center p-6">
-      <div className="w-full max-w-sm">
-        <div className="w-20 h-20 mx-auto mb-6 rounded-3xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #141428 0%, #1a1a36 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
-          <span className="text-3xl font-bold text-[#b8b2f0]">H</span>
+    <div style={{ minHeight: '100vh', background: '#0a0a1a', padding: 20, paddingTop: '20vh' }}>
+      <div style={{ maxWidth: 320, margin: '0 auto' }}>
+        <div style={{ marginBottom: 20 }}>
+          <label style={{ display: 'block', marginBottom: 5, color: '#e2e2ff' }}>Email</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            style={{ width: '100%', padding: 10, fontSize: 16, background: '#0e0e20', border: '1px solid #333', color: '#e2e2ff' }}
+          />
         </div>
-        <h1 className="text-2xl font-bold text-[#e2e2ff] mb-2 text-center tracking-tight">Haushalt</h1>
-        <p className="text-sm text-[#555577] mb-8 text-center">Deine persönliche Finanzübersicht</p>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs text-[#555577] mb-1.5 ml-1">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-[#0e0e20] border border-[#1a1a3a] rounded-xl px-4 py-3 text-[#e2e2ff] text-base focus:outline-none focus:border-[#7c6fe0]"
-              autoCapitalize="none"
-              autoCorrect="off"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-xs text-[#555577] mb-1.5 ml-1">Passwort</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-[#0e0e20] border border-[#1a1a3a] rounded-xl px-4 py-3 text-[#e2e2ff] text-base focus:outline-none focus:border-[#7c6fe0]"
-              required
-            />
-          </div>
-          {error && <p className="text-xs text-red-400">{error}</p>}
-          <button
-            type="submit"
-            disabled={loading || !email || !password}
-            className="w-full py-3.5 rounded-xl text-white font-semibold text-sm disabled:opacity-50"
-            style={{ background: 'linear-gradient(135deg, #7c6fe0 0%, #9b8ff0 100%)' }}
-          >
-            {loading ? 'Anmelden...' : 'Anmelden'}
-          </button>
-        </form>
+        <div style={{ marginBottom: 20 }}>
+          <label style={{ display: 'block', marginBottom: 5, color: '#e2e2ff' }}>Passwort</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            style={{ width: '100%', padding: 10, fontSize: 16, background: '#0e0e20', border: '1px solid #333', color: '#e2e2ff' }}
+          />
+        </div>
+        {error && <div style={{ color: '#F0997B', fontSize: 14, marginBottom: 15 }}>{error}</div>}
+        <button
+          onClick={handleSubmit}
+          disabled={loading || !email || !password}
+          style={{ width: '100%', padding: 12, fontSize: 16, background: loading ? '#555' : '#7c6fe0', color: '#fff', border: 'none', opacity: loading ? 0.7 : 1 }}
+        >
+          {loading ? 'Anmelden...' : 'Anmelden'}
+        </button>
       </div>
     </div>
   );
@@ -101,19 +129,16 @@ function App() {
   }, []);
 
   const handleLogin = async (email: string, password: string) => {
+    console.log('[App] handleLogin called', { email });
     try {
-      const user = await (netlifyIdentity as any).auth.login(email, password, true);
-      const userData = {
-        id: user.id,
-        name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
-        email: user.email || '',
-      };
-      setUser(userData);
+      const user = await goTrueLogin(email, password);
+      console.log('[App] goTrueLogin success', user);
+      setUser(user);
       setLoading(true);
-      await ensureUser(user.id, user.email || '', userData.name);
+      await ensureUser(user.id, user.email, user.name);
       await loadData(user.id);
     } catch (err) {
-      console.error('Login error:', err);
+      console.error('[App] Login error:', err);
       throw err;
     } finally {
       setLoading(false);
