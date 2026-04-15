@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import netlifyIdentity from 'netlify-identity-widget';
 import { useAuthStore } from './store/useAuthStore';
+import { useFinanceStore } from './store/useFinanceStore';
+import { ensureUser } from './lib/db';
 import BottomNav from './components/layout/BottomNav';
 import Overview from './screens/Overview/index';
 import Positions from './screens/Positions/index';
@@ -36,24 +38,33 @@ function LoginScreen() {
 
 function App() {
   const { user, setUser, isLoading, setLoading } = useAuthStore();
+  const loadData = useFinanceStore((state) => state.loadData);
   const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
     const existingUser = netlifyIdentity.currentUser();
     if (existingUser) {
-      setUser({
+      const userData = {
+        id: existingUser.id,
         name: existingUser.user_metadata?.full_name || existingUser.email?.split('@')[0] || 'User',
         email: existingUser.email || '',
-      });
+      };
+      setUser(userData);
+      ensureUser(existingUser.id, existingUser.email || '', userData.name);
+      loadData(existingUser.id);
       setLoading(false);
     }
 
     netlifyIdentity.on('login', (u) => {
       if (u) {
-        setUser({
+        const userData = {
+          id: u.id,
           name: u.user_metadata?.full_name || u.email?.split('@')[0] || 'User',
           email: u.email || '',
-        });
+        };
+        setUser(userData);
+        ensureUser(u.id, u.email || '', userData.name);
+        loadData(u.id);
       }
       setLoading(false);
       netlifyIdentity.close();
@@ -66,10 +77,14 @@ function App() {
     netlifyIdentity.on('close', () => {
       const u = netlifyIdentity.currentUser();
       if (u) {
-        setUser({
+        const userData = {
+          id: u.id,
           name: u.user_metadata?.full_name || u.email?.split('@')[0] || 'User',
           email: u.email || '',
-        });
+        };
+        setUser(userData);
+        ensureUser(u.id, u.email || '', userData.name);
+        loadData(u.id);
       }
       setLoading(false);
     });
@@ -81,7 +96,7 @@ function App() {
       const timeout = setTimeout(() => setLoading(false), 2000);
       return () => clearTimeout(timeout);
     }
-  }, [setUser, setLoading]);
+  }, [setUser, setLoading, loadData]);
 
   if (isLoading) {
     return (

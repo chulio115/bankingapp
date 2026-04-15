@@ -47,7 +47,7 @@ export default function Settings() {
     URL.revokeObjectURL(url);
   };
 
-  const handleAddCategory = () => {
+  const handleAddCategory = async () => {
     if (!newCatName.trim()) return;
     const id = newCatName.trim().toLowerCase().replace(/\s+/g, '-');
     const color = PALETTE_COLORS[selectedColor];
@@ -58,7 +58,7 @@ export default function Settings() {
       textColor: color.textColor,
       dotColor: color.textColor,
     };
-    addCategory(cat);
+    await addCategory(cat);
     setNewCatName('');
     setShowAddCat(false);
   };

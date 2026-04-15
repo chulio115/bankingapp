@@ -66,7 +66,7 @@ export default function PositionModal({ isOpen, onClose, editItem }: PositionMod
     }
   }, [editItem, isOpen]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const parsedAmount = parseFloat(amount.replace(',', '.'));
     if (!name.trim() || isNaN(parsedAmount) || parsedAmount <= 0) return;
 
@@ -78,8 +78,8 @@ export default function PositionModal({ isOpen, onClose, editItem }: PositionMod
         month: currentMonth,
         notes: notes.trim() || undefined,
       };
-      if (editItem) updateIncome(income);
-      else addIncome(income);
+      if (editItem) await updateIncome(income);
+      else await addIncome(income);
     } else {
       const expense: Expense = {
         id: editItem?.id || generateId(),
@@ -91,16 +91,16 @@ export default function PositionModal({ isOpen, onClose, editItem }: PositionMod
         notes: notes.trim() || undefined,
         debtDetails: category === 'schulden' ? debtDetails : undefined,
       };
-      if (editItem) updateExpense(expense);
-      else addExpense(expense);
+      if (editItem) await updateExpense(expense);
+      else await addExpense(expense);
     }
     onClose();
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!editItem) return;
-    if (editItem.type === 'income') deleteIncome(editItem.id);
-    else deleteExpense(editItem.id);
+    if (editItem.type === 'income') await deleteIncome(editItem.id);
+    else await deleteExpense(editItem.id);
     onClose();
   };
 
