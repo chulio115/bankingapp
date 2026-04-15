@@ -17,11 +17,12 @@ const lsSave = (userId: string, data: LocalData) => localStorage.setItem(LS_KEY(
 export async function ensureUser(userId: string, email: string, name: string) {
   if (!hasNeon || !sql) return;
   try {
-    await sql`
-      INSERT INTO users (id, email, name)
-      VALUES (${userId}, ${email}, ${name})
-      ON CONFLICT (id) DO UPDATE SET email = EXCLUDED.email, name = EXCLUDED.name
-    `;
+    const existing = await sql`SELECT id FROM users WHERE id = ${userId}`;
+    if (existing.length === 0) {
+      await sql`INSERT INTO users (id, email, name) VALUES (${userId}, ${email}, ${name})`;
+    } else {
+      await sql`UPDATE users SET email = ${email}, name = ${name} WHERE id = ${userId}`;
+    }
   } catch (error) { console.error('ensureUser error:', error); }
 }
 

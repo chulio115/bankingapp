@@ -9,15 +9,16 @@ CREATE TABLE IF NOT EXISTS users (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Categories Tabelle
+-- Categories Tabelle (composite PK: gleiche Kategorie-ID pro User)
 CREATE TABLE IF NOT EXISTS categories (
-  id VARCHAR(100) PRIMARY KEY,
+  id VARCHAR(100) NOT NULL,
   label VARCHAR(100) NOT NULL,
   bg_color VARCHAR(20) NOT NULL,
   text_color VARCHAR(20) NOT NULL,
   dot_color VARCHAR(20) NOT NULL,
-  user_id VARCHAR(255) REFERENCES users(id) ON DELETE CASCADE,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id, user_id)
 );
 
 -- Incomes Tabelle
