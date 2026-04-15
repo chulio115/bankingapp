@@ -129,7 +129,7 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a1a] max-w-[430px] mx-auto relative" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+    <div className="min-h-screen bg-[#0a0a1a] max-w-[430px] mx-auto relative pt-safe">
       {activeTab === 'overview' && <Overview />}
       {activeTab === 'positions' && <Positions />}
       {activeTab === 'debts' && <Debts />}

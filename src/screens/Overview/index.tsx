@@ -66,10 +66,12 @@ export default function Overview() {
         <EmptyState message="Noch keine Einträge für diesen Monat vorhanden." />
       ) : (
         <>
-          {/* Donut Chart */}
-          <Card className="mb-6">
-            <DonutChart data={chartData} total={expense} label="Ausgaben" />
-          </Card>
+          {/* Donut Chart — only when expenses exist */}
+          {expense > 0 && (
+            <Card className="mb-6">
+              <DonutChart data={chartData} total={expense} label="Ausgaben" />
+            </Card>
+          )}
 
           {/* Income / Expense Stats */}
           <div className="grid grid-cols-2 gap-4 mb-6">

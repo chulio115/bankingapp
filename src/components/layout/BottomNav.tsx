@@ -53,20 +53,20 @@ export default function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40">
       <div className="glass border-t border-white/[0.06]">
-        <div className="max-w-[430px] mx-auto flex items-center justify-around pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+        <div className="max-w-[430px] mx-auto grid grid-cols-4 pt-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))]">
           {items.map((item) => {
             const isActive = activeTab === item.id;
             return (
               <button
                 key={item.id}
                 onClick={() => onTabChange(item.id)}
-                className={`flex flex-col items-center gap-1.5 min-w-[70px] py-1.5 rounded-xl transition-all duration-200 ${
+                className={`flex flex-col items-center gap-1 py-1 transition-all duration-200 ${
                   isActive ? 'opacity-100' : 'opacity-50 hover:opacity-75'
                 }`}
               >
                 {item.icon(isActive)}
                 <span
-                  className={`text-[10px] tracking-wide ${isActive ? 'font-semibold text-[#b8b2f0]' : 'font-medium text-[#555577]'}`}
+                  className={`text-[10px] leading-tight truncate max-w-full px-1 ${isActive ? 'font-semibold text-[#b8b2f0]' : 'font-medium text-[#555577]'}`}
                 >
                   {item.label}
                 </span>
