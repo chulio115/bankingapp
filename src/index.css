@@ -79,6 +79,14 @@ input:focus, select:focus, textarea:focus {
   padding-bottom: env(safe-area-inset-bottom, 8px);
 }
 
+/* Kill Netlify Identity widget overlay — blocks touches in iOS PWA */
+.netlify-identity-widget,
+#netlify-identity-widget,
+.netlify-identity-menu {
+  display: none !important;
+  pointer-events: none !important;
+}
+
 /* Glass morphism helper */
 .glass {
   background: rgba(22, 22, 40, 0.6);

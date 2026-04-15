@@ -60,67 +60,57 @@ export const useFinanceStore = create<FinanceState>()((set) => ({
   addIncome: async (income) => {
     const user = useAuthStore.getState().user;
     if (!user) return;
-
     set((state) => ({ incomes: [...state.incomes, income] }));
-    await dbAddIncome(user.id, income);
+    try { await dbAddIncome(user.id, income); }
+    catch (e) { console.error('addIncome DB error:', e); }
   },
 
   updateIncome: async (income) => {
     const user = useAuthStore.getState().user;
     if (!user) return;
-
-    set((state) => ({
-      incomes: state.incomes.map((i) => (i.id === income.id ? income : i)),
-    }));
-    await dbUpdateIncome(user.id, income);
+    set((state) => ({ incomes: state.incomes.map((i) => (i.id === income.id ? income : i)) }));
+    try { await dbUpdateIncome(user.id, income); }
+    catch (e) { console.error('updateIncome DB error:', e); }
   },
 
   deleteIncome: async (id) => {
     const user = useAuthStore.getState().user;
     if (!user) return;
-
-    set((state) => ({
-      incomes: state.incomes.filter((i) => i.id !== id),
-    }));
-    await dbDeleteIncome(user.id, id);
+    set((state) => ({ incomes: state.incomes.filter((i) => i.id !== id) }));
+    try { await dbDeleteIncome(user.id, id); }
+    catch (e) { console.error('deleteIncome DB error:', e); }
   },
 
   addExpense: async (expense) => {
     const user = useAuthStore.getState().user;
     if (!user) return;
-
     set((state) => ({ expenses: [...state.expenses, expense] }));
-    await dbAddExpense(user.id, expense);
+    try { await dbAddExpense(user.id, expense); }
+    catch (e) { console.error('addExpense DB error:', e); }
   },
 
   updateExpense: async (expense) => {
     const user = useAuthStore.getState().user;
     if (!user) return;
-
-    set((state) => ({
-      expenses: state.expenses.map((e) =>
-        e.id === expense.id ? expense : e,
-      ),
-    }));
-    await dbUpdateExpense(user.id, expense);
+    set((state) => ({ expenses: state.expenses.map((e) => e.id === expense.id ? expense : e) }));
+    try { await dbUpdateExpense(user.id, expense); }
+    catch (e) { console.error('updateExpense DB error:', e); }
   },
 
   deleteExpense: async (id) => {
     const user = useAuthStore.getState().user;
     if (!user) return;
-
-    set((state) => ({
-      expenses: state.expenses.filter((e) => e.id !== id),
-    }));
-    await dbDeleteExpense(user.id, id);
+    set((state) => ({ expenses: state.expenses.filter((e) => e.id !== id) }));
+    try { await dbDeleteExpense(user.id, id); }
+    catch (e) { console.error('deleteExpense DB error:', e); }
   },
 
   addCategory: async (category) => {
     const user = useAuthStore.getState().user;
     if (!user) return;
-
     set((state) => ({ categories: [...state.categories, category] }));
-    await dbAddCategory(user.id, category);
+    try { await dbAddCategory(user.id, category); }
+    catch (e) { console.error('addCategory DB error:', e); }
   },
 
   removeCategory: (id) =>
