@@ -3,50 +3,54 @@ export default async (req: Request) => {
     return new Response(JSON.stringify({ error: "Method not allowed" }), { status: 405 });
   }
 
+  // Verify caller is authenticated
   const authHeader = req.headers.get("authorization");
   if (!authHeader?.startsWith("Bearer ")) {
     return new Response(JSON.stringify({ error: "Nicht autorisiert" }), { status: 401 });
   }
-  const token = authHeader.slice(7);
+  const callerToken = authHeader.slice(7);
 
-  // Verify the calling user is authenticated by fetching their profile
   const siteUrl = process.env.URL || `https://${req.headers.get("host")}`;
-  const identityUrl = `${siteUrl}/.netlify/identity`;
-
-  const callerRes = await fetch(`${identityUrl}/user`, {
-    headers: { Authorization: `Bearer ${token}` },
+  const callerRes = await fetch(`${siteUrl}/.netlify/identity/user`, {
+    headers: { Authorization: `Bearer ${callerToken}` },
   });
   if (!callerRes.ok) {
     return new Response(JSON.stringify({ error: "Ungültiger Token" }), { status: 401 });
   }
 
+  // Parse request
   const body = await req.json();
   const { email } = body;
   if (!email || typeof email !== "string") {
     return new Response(JSON.stringify({ error: "Email ist erforderlich" }), { status: 400 });
   }
 
-  // Use Netlify Identity Admin API to invite user
-  const IDENTITY_TOKEN = process.env.IDENTITY_ADMIN_TOKEN;
-  if (!IDENTITY_TOKEN) {
+  // Use Netlify API (not GoTrue) to invite user — accepts Personal Access Token
+  const NETLIFY_PAT = process.env.NETLIFY_PAT;
+  const SITE_ID = process.env.SITE_ID;
+
+  if (!NETLIFY_PAT || !SITE_ID) {
     return new Response(
-      JSON.stringify({ error: "Admin Token nicht konfiguriert. Setze IDENTITY_ADMIN_TOKEN in Netlify Environment Variables." }),
+      JSON.stringify({ error: "NETLIFY_PAT und SITE_ID müssen als Environment Variables gesetzt sein." }),
       { status: 500 }
     );
   }
 
-  const inviteRes = await fetch(`${identityUrl}/admin/invite`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${IDENTITY_TOKEN}`,
-    },
-    body: JSON.stringify({ email }),
-  });
+  const inviteRes = await fetch(
+    `https://api.netlify.com/api/v1/sites/${SITE_ID}/identity/users`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${NETLIFY_PAT}`,
+      },
+      body: JSON.stringify({ email, send_invite: true }),
+    }
+  );
 
   if (!inviteRes.ok) {
     const err = await inviteRes.json().catch(() => ({}));
-    const msg = (err as Record<string, string>).msg || (err as Record<string, string>).error_description || "Einladung fehlgeschlagen";
+    const msg = (err as Record<string, string>).msg || (err as Record<string, string>).message || "Einladung fehlgeschlagen";
     return new Response(JSON.stringify({ error: msg }), { status: inviteRes.status });
   }
 
