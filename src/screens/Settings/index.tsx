@@ -23,6 +23,9 @@ export default function Settings() {
   const [showAddCat, setShowAddCat] = useState(false);
   const [newCatName, setNewCatName] = useState('');
   const [selectedColor, setSelectedColor] = useState(0);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteLoading, setInviteLoading] = useState(false);
+  const [inviteMessage, setInviteMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const handleLogout = () => {
     if (window.netlifyIdentity) {
@@ -60,6 +63,29 @@ export default function Settings() {
     await addCategory(cat);
     setNewCatName('');
     setShowAddCat(false);
+  };
+
+  const handleInvite = async () => {
+    if (!inviteEmail.trim()) return;
+    setInviteLoading(true);
+    setInviteMessage(null);
+    try {
+      const token = JSON.parse(localStorage.getItem('gotrue.user') || '{}')?.token?.access_token;
+      if (!token) throw new Error('Nicht eingeloggt');
+      const res = await fetch('/.netlify/functions/invite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ email: inviteEmail.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Einladung fehlgeschlagen');
+      setInviteMessage({ type: 'success', text: `Einladung an ${inviteEmail.trim()} gesendet!` });
+      setInviteEmail('');
+    } catch (err) {
+      setInviteMessage({ type: 'error', text: (err as Error).message });
+    } finally {
+      setInviteLoading(false);
+    }
   };
 
   return (
@@ -121,6 +147,37 @@ export default function Settings() {
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
           </svg>
         </button>
+      </div>
+
+      {/* Benutzer einladen */}
+      <div style={{ marginBottom: 20, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+        <div style={{ fontSize: 11, color: '#555577', textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: 600, marginBottom: 10 }}>Benutzer einladen</div>
+        <div style={{ padding: '14px 16px', background: '#141428', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16 }}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <input
+              type="email"
+              value={inviteEmail}
+              onChange={(e) => setInviteEmail(e.target.value)}
+              placeholder="Email-Adresse"
+              style={{ flex: 1, background: '#0e0e20', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '10px 14px', fontSize: 14, color: '#e2e2ff', outline: 'none', fontFamily: 'inherit' }}
+            />
+            <button
+              onClick={handleInvite}
+              disabled={inviteLoading || !inviteEmail.trim()}
+              style={{ padding: '10px 16px', borderRadius: 10, border: 'none', background: inviteLoading ? '#555' : 'linear-gradient(135deg, #7c6fe0 0%, #9b8ff0 100%)', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap', opacity: inviteLoading || !inviteEmail.trim() ? 0.5 : 1 }}
+            >
+              {inviteLoading ? '...' : 'Einladen'}
+            </button>
+          </div>
+          {inviteMessage && (
+            <div style={{ marginTop: 10, fontSize: 12, color: inviteMessage.type === 'success' ? '#5DCAA5' : '#F0997B' }}>
+              {inviteMessage.text}
+            </div>
+          )}
+          <p style={{ marginTop: 10, fontSize: 11, color: '#444466', lineHeight: 1.4 }}>
+            Der eingeladene Benutzer erhält eine Email mit einem Link zum Passwort setzen.
+          </p>
+        </div>
       </div>
 
       {/* Abmelden */}

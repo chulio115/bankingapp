@@ -46,51 +46,108 @@ function LoginScreen({ onLogin }: { onLogin: (email: string, password: string) =
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [inviteToken, setInviteToken] = useState('');
+  const [invitePassword, setInvitePassword] = useState('');
+  const [inviteSuccess, setInviteSuccess] = useState(false);
+
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash.includes('invite_token=')) {
+      const token = hash.split('invite_token=')[1]?.split('&')[0];
+      if (token) setInviteToken(token);
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) return;
-    console.log('[Login] Submitting...', { email });
     setLoading(true);
     setError('');
     try {
       await onLogin(email, password);
-      console.log('[Login] Success');
     } catch (err) {
-      console.error('[Login] Error:', err);
       setError((err as Error)?.message || 'Login fehlgeschlagen');
     } finally {
       setLoading(false);
     }
   };
 
+  const handleAcceptInvite = async () => {
+    if (!invitePassword || invitePassword.length < 6) {
+      setError('Passwort muss mindestens 6 Zeichen haben');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    try {
+      const siteUrl = window.location.origin;
+      const res = await fetch(`${siteUrl}/.netlify/identity/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: inviteToken, type: 'invite', password: invitePassword }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error((err as Record<string, string>).msg || 'Aktivierung fehlgeschlagen');
+      }
+      setInviteSuccess(true);
+      setInviteToken('');
+      window.location.hash = '';
+    } catch (err) {
+      setError((err as Error)?.message || 'Aktivierung fehlgeschlagen');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const inputStyle = { width: '100%', padding: 10, fontSize: 16, background: '#0e0e20', border: '1px solid #333', color: '#e2e2ff', borderRadius: 8 };
+  const btnStyle = (disabled: boolean) => ({ width: '100%', padding: 12, fontSize: 16, background: disabled ? '#555' : '#7c6fe0', color: '#fff', border: 'none', borderRadius: 8, opacity: disabled ? 0.7 : 1, cursor: disabled ? 'default' : 'pointer' as const });
+
+  if (inviteToken) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#0a0a1a', padding: 20, paddingTop: '20vh' }}>
+        <div style={{ maxWidth: 320, margin: '0 auto' }}>
+          <h2 style={{ color: '#e2e2ff', fontSize: 20, fontWeight: 700, marginBottom: 8 }}>Willkommen!</h2>
+          <p style={{ color: '#555577', fontSize: 14, marginBottom: 24 }}>Setze ein Passwort um deinen Account zu aktivieren.</p>
+          <div style={{ marginBottom: 20 }}>
+            <label style={{ display: 'block', marginBottom: 5, color: '#e2e2ff' }}>Neues Passwort</label>
+            <input type="password" value={invitePassword} onChange={(e) => setInvitePassword(e.target.value)} placeholder="Mind. 6 Zeichen" style={inputStyle} />
+          </div>
+          {error && <div style={{ color: '#F0997B', fontSize: 14, marginBottom: 15 }}>{error}</div>}
+          <button onClick={handleAcceptInvite} disabled={loading || !invitePassword} style={btnStyle(loading || !invitePassword)}>
+            {loading ? 'Aktivieren...' : 'Account aktivieren'}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (inviteSuccess) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#0a0a1a', padding: 20, paddingTop: '20vh' }}>
+        <div style={{ maxWidth: 320, margin: '0 auto', textAlign: 'center' }}>
+          <div style={{ fontSize: 48, marginBottom: 16 }}>✓</div>
+          <h2 style={{ color: '#5DCAA5', fontSize: 20, fontWeight: 700, marginBottom: 8 }}>Account aktiviert!</h2>
+          <p style={{ color: '#555577', fontSize: 14, marginBottom: 24 }}>Du kannst dich jetzt mit deiner Email und dem Passwort einloggen.</p>
+          <button onClick={() => setInviteSuccess(false)} style={btnStyle(false)}>Zum Login</button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={{ minHeight: '100vh', background: '#0a0a1a', padding: 20, paddingTop: '20vh' }}>
       <div style={{ maxWidth: 320, margin: '0 auto' }}>
         <div style={{ marginBottom: 20 }}>
           <label style={{ display: 'block', marginBottom: 5, color: '#e2e2ff' }}>Email</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            style={{ width: '100%', padding: 10, fontSize: 16, background: '#0e0e20', border: '1px solid #333', color: '#e2e2ff' }}
-          />
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={inputStyle} />
         </div>
         <div style={{ marginBottom: 20 }}>
           <label style={{ display: 'block', marginBottom: 5, color: '#e2e2ff' }}>Passwort</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            style={{ width: '100%', padding: 10, fontSize: 16, background: '#0e0e20', border: '1px solid #333', color: '#e2e2ff' }}
-          />
+          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} style={inputStyle} />
         </div>
         {error && <div style={{ color: '#F0997B', fontSize: 14, marginBottom: 15 }}>{error}</div>}
-        <button
-          onClick={handleSubmit}
-          disabled={loading || !email || !password}
-          style={{ width: '100%', padding: 12, fontSize: 16, background: loading ? '#555' : '#7c6fe0', color: '#fff', border: 'none', opacity: loading ? 0.7 : 1 }}
-        >
+        <button onClick={handleSubmit} disabled={loading || !email || !password} style={btnStyle(loading || !email || !password)}>
           {loading ? 'Anmelden...' : 'Anmelden'}
         </button>
       </div>
