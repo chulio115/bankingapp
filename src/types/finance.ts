@@ -59,10 +59,16 @@ export interface CategoryConfig {
 }
 
 export const DEFAULT_CATEGORIES: CategoryConfig[] = [
-  { id: 'abo', label: 'Abo', bgColor: '#2a2a55', textColor: '#AFA9EC', dotColor: '#AFA9EC' },
-  { id: 'fixkosten', label: 'Fixkosten', bgColor: '#1a2a33', textColor: '#85B7EB', dotColor: '#85B7EB' },
-  { id: 'schulden', label: 'Schulden', bgColor: '#2a3322', textColor: '#97C459', dotColor: '#97C459' },
+  { id: 'wohnen', label: 'Wohnen', bgColor: '#1a2a33', textColor: '#85B7EB', dotColor: '#85B7EB' },
+  { id: 'lebensmittel', label: 'Lebensmittel', bgColor: '#2a3322', textColor: '#97C459', dotColor: '#97C459' },
+  { id: 'mobilitaet', label: 'Mobilität', bgColor: '#1a2a2a', textColor: '#5DCAA5', dotColor: '#5DCAA5' },
+  { id: 'tanken', label: 'Tanken', bgColor: '#1a2a28', textColor: '#4ABFA0', dotColor: '#4ABFA0' },
+  { id: 'abo', label: 'Abos', bgColor: '#2a2a55', textColor: '#AFA9EC', dotColor: '#AFA9EC' },
   { id: 'versicherung', label: 'Versicherung', bgColor: '#2a2233', textColor: '#D4537E', dotColor: '#D4537E' },
+  { id: 'freizeit', label: 'Freizeit', bgColor: '#2a2244', textColor: '#C490E4', dotColor: '#C490E4' },
+  { id: 'gesundheit', label: 'Gesundheit', bgColor: '#2a2230', textColor: '#E88EB5', dotColor: '#E88EB5' },
+  { id: 'kleidung', label: 'Kleidung', bgColor: '#2a2a3a', textColor: '#A8B8E8', dotColor: '#A8B8E8' },
+  { id: 'schulden', label: 'Schulden', bgColor: '#2a2222', textColor: '#F0997B', dotColor: '#F0997B' },
+  { id: 'fixkosten', label: 'Fixkosten', bgColor: '#22222a', textColor: '#8888BB', dotColor: '#8888BB' },
   { id: 'sonstiges', label: 'Sonstiges', bgColor: '#2a2a22', textColor: '#EF9F27', dotColor: '#EF9F27' },
-  { id: 'tanken', label: 'Tanken', bgColor: '#1a2a2a', textColor: '#5DCAA5', dotColor: '#5DCAA5' },
 ];
