@@ -23,9 +23,16 @@ export default function Settings() {
   const [showAddCat, setShowAddCat] = useState(false);
   const [newCatName, setNewCatName] = useState('');
   const [selectedColor, setSelectedColor] = useState(0);
-  const [inviteEmail, setInviteEmail] = useState('');
-  const [inviteLoading, setInviteLoading] = useState(false);
-  const [inviteMessage, setInviteMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  // Benutzer erstellen
+  const [newUserEmail, setNewUserEmail] = useState('');
+  const [newUserPw, setNewUserPw] = useState('');
+  const [createLoading, setCreateLoading] = useState(false);
+  const [createMsg, setCreateMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  // Passwort ändern
+  const [newPw, setNewPw] = useState('');
+  const [newPwConfirm, setNewPwConfirm] = useState('');
+  const [pwLoading, setPwLoading] = useState(false);
+  const [pwMsg, setPwMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const handleLogout = () => {
     if (window.netlifyIdentity) {
@@ -65,26 +72,52 @@ export default function Settings() {
     setShowAddCat(false);
   };
 
-  const handleInvite = async () => {
-    if (!inviteEmail.trim()) return;
-    setInviteLoading(true);
-    setInviteMessage(null);
+  const getToken = () => JSON.parse(localStorage.getItem('gotrue.user') || '{}')?.token?.access_token;
+
+  const handleCreateUser = async () => {
+    if (!newUserEmail.trim() || !newUserPw) return;
+    setCreateLoading(true);
+    setCreateMsg(null);
     try {
-      const token = JSON.parse(localStorage.getItem('gotrue.user') || '{}')?.token?.access_token;
+      const token = getToken();
       if (!token) throw new Error('Nicht eingeloggt');
       const res = await fetch('/.netlify/functions/invite', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ email: inviteEmail.trim() }),
+        body: JSON.stringify({ email: newUserEmail.trim(), password: newUserPw }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Einladung fehlgeschlagen');
-      setInviteMessage({ type: 'success', text: `Einladung an ${inviteEmail.trim()} gesendet!` });
-      setInviteEmail('');
+      if (!res.ok) throw new Error(data.error || 'Erstellen fehlgeschlagen');
+      setCreateMsg({ type: 'success', text: `Benutzer ${newUserEmail.trim()} erstellt!` });
+      setNewUserEmail(''); setNewUserPw('');
     } catch (err) {
-      setInviteMessage({ type: 'error', text: (err as Error).message });
+      setCreateMsg({ type: 'error', text: (err as Error).message });
     } finally {
-      setInviteLoading(false);
+      setCreateLoading(false);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (!newPw || newPw.length < 6) { setPwMsg({ type: 'error', text: 'Mind. 6 Zeichen' }); return; }
+    if (newPw !== newPwConfirm) { setPwMsg({ type: 'error', text: 'Passwörter stimmen nicht überein' }); return; }
+    setPwLoading(true);
+    setPwMsg(null);
+    try {
+      const token = getToken();
+      if (!token) throw new Error('Nicht eingeloggt');
+      const res = await fetch('/.netlify/functions/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ newPassword: newPw }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Änderung fehlgeschlagen');
+      setPwMsg({ type: 'success', text: 'Passwort geändert!' });
+      setNewPw(''); setNewPwConfirm('');
+    } catch (err) {
+      setPwMsg({ type: 'error', text: (err as Error).message });
+    } finally {
+      setPwLoading(false);
     }
   };
 
@@ -149,33 +182,41 @@ export default function Settings() {
         </button>
       </div>
 
-      {/* Benutzer einladen */}
+      {/* Passwort ändern */}
       <div style={{ marginBottom: 20, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.04)' }}>
-        <div style={{ fontSize: 11, color: '#555577', textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: 600, marginBottom: 10 }}>Benutzer einladen</div>
+        <div style={{ fontSize: 11, color: '#555577', textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: 600, marginBottom: 10 }}>Passwort ändern</div>
         <div style={{ padding: '14px 16px', background: '#141428', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16 }}>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <input
-              type="email"
-              value={inviteEmail}
-              onChange={(e) => setInviteEmail(e.target.value)}
-              placeholder="Email-Adresse"
-              style={{ flex: 1, background: '#0e0e20', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '10px 14px', fontSize: 14, color: '#e2e2ff', outline: 'none', fontFamily: 'inherit' }}
-            />
-            <button
-              onClick={handleInvite}
-              disabled={inviteLoading || !inviteEmail.trim()}
-              style={{ padding: '10px 16px', borderRadius: 10, border: 'none', background: inviteLoading ? '#555' : 'linear-gradient(135deg, #7c6fe0 0%, #9b8ff0 100%)', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap', opacity: inviteLoading || !inviteEmail.trim() ? 0.5 : 1 }}
-            >
-              {inviteLoading ? '...' : 'Einladen'}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <input type="password" value={newPw} onChange={(e) => setNewPw(e.target.value)} placeholder="Neues Passwort"
+              style={{ width: '100%', background: '#0e0e20', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '10px 14px', fontSize: 14, color: '#e2e2ff', outline: 'none', fontFamily: 'inherit' }} />
+            <input type="password" value={newPwConfirm} onChange={(e) => setNewPwConfirm(e.target.value)} placeholder="Passwort bestätigen"
+              style={{ width: '100%', background: '#0e0e20', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '10px 14px', fontSize: 14, color: '#e2e2ff', outline: 'none', fontFamily: 'inherit' }} />
+            <button onClick={handleChangePassword} disabled={pwLoading || !newPw || !newPwConfirm}
+              style={{ padding: '10px 16px', borderRadius: 10, border: 'none', background: pwLoading ? '#555' : 'linear-gradient(135deg, #7c6fe0 0%, #9b8ff0 100%)', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', opacity: pwLoading || !newPw || !newPwConfirm ? 0.5 : 1 }}>
+              {pwLoading ? '...' : 'Passwort ändern'}
             </button>
           </div>
-          {inviteMessage && (
-            <div style={{ marginTop: 10, fontSize: 12, color: inviteMessage.type === 'success' ? '#5DCAA5' : '#F0997B' }}>
-              {inviteMessage.text}
-            </div>
-          )}
+          {pwMsg && <div style={{ marginTop: 10, fontSize: 12, color: pwMsg.type === 'success' ? '#5DCAA5' : '#F0997B' }}>{pwMsg.text}</div>}
+        </div>
+      </div>
+
+      {/* Benutzer erstellen */}
+      <div style={{ marginBottom: 20, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+        <div style={{ fontSize: 11, color: '#555577', textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: 600, marginBottom: 10 }}>Benutzer erstellen</div>
+        <div style={{ padding: '14px 16px', background: '#141428', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <input type="email" value={newUserEmail} onChange={(e) => setNewUserEmail(e.target.value)} placeholder="Email-Adresse"
+              style={{ width: '100%', background: '#0e0e20', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '10px 14px', fontSize: 14, color: '#e2e2ff', outline: 'none', fontFamily: 'inherit' }} />
+            <input type="password" value={newUserPw} onChange={(e) => setNewUserPw(e.target.value)} placeholder="Passwort (mind. 6 Zeichen)"
+              style={{ width: '100%', background: '#0e0e20', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '10px 14px', fontSize: 14, color: '#e2e2ff', outline: 'none', fontFamily: 'inherit' }} />
+            <button onClick={handleCreateUser} disabled={createLoading || !newUserEmail.trim() || !newUserPw}
+              style={{ padding: '10px 16px', borderRadius: 10, border: 'none', background: createLoading ? '#555' : 'linear-gradient(135deg, #7c6fe0 0%, #9b8ff0 100%)', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', opacity: createLoading || !newUserEmail.trim() || !newUserPw ? 0.5 : 1 }}>
+              {createLoading ? '...' : 'Benutzer erstellen'}
+            </button>
+          </div>
+          {createMsg && <div style={{ marginTop: 10, fontSize: 12, color: createMsg.type === 'success' ? '#5DCAA5' : '#F0997B' }}>{createMsg.text}</div>}
           <p style={{ marginTop: 10, fontSize: 11, color: '#444466', lineHeight: 1.4 }}>
-            Der eingeladene Benutzer erhält eine Email mit einem Link zum Passwort setzen.
+            Neuer Benutzer kann sich sofort einloggen und sieht nur seine eigenen Daten.
           </p>
         </div>
       </div>

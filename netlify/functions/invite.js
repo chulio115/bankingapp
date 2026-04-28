@@ -1,75 +1,38 @@
+const { admin, getUser } = require("@netlify/identity");
+
 exports.handler = async (event) => {
   if (event.httpMethod !== "POST") {
     return { statusCode: 405, body: JSON.stringify({ error: "Method not allowed" }) };
   }
 
   // Verify caller is authenticated
-  const authHeader = event.headers.authorization || event.headers.Authorization || "";
-  if (!authHeader.startsWith("Bearer ")) {
+  const caller = await getUser();
+  if (!caller) {
     return { statusCode: 401, body: JSON.stringify({ error: "Nicht autorisiert" }) };
   }
-  const callerToken = authHeader.slice(7);
 
-  const siteUrl = process.env.URL || "https://chuliobanking.netlify.app";
+  let body;
   try {
-    const callerRes = await fetch(`${siteUrl}/.netlify/identity/user`, {
-      headers: { Authorization: `Bearer ${callerToken}` },
-    });
-    if (!callerRes.ok) {
-      return { statusCode: 401, body: JSON.stringify({ error: "Ungültiger Token" }) };
-    }
-  } catch (e) {
-    return { statusCode: 401, body: JSON.stringify({ error: "Token-Prüfung fehlgeschlagen" }) };
-  }
-
-  // Parse request
-  let email;
-  try {
-    const body = JSON.parse(event.body || "{}");
-    email = body.email;
+    body = JSON.parse(event.body || "{}");
   } catch (e) {
     return { statusCode: 400, body: JSON.stringify({ error: "Ungültiger Request Body" }) };
   }
 
+  const { email, password } = body;
   if (!email || typeof email !== "string") {
     return { statusCode: 400, body: JSON.stringify({ error: "Email ist erforderlich" }) };
   }
-
-  // Use Netlify API to invite user
-  const NETLIFY_PAT = process.env.NETLIFY_PAT;
-  const SITE_ID = process.env.MY_SITE_ID;
-
-  if (!NETLIFY_PAT || !SITE_ID) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: "NETLIFY_PAT und MY_SITE_ID müssen als Environment Variables gesetzt sein." }),
-    };
+  if (!password || password.length < 6) {
+    return { statusCode: 400, body: JSON.stringify({ error: "Passwort muss mind. 6 Zeichen haben" }) };
   }
 
   try {
-    const inviteRes = await fetch(
-      `https://api.netlify.com/api/v1/sites/${SITE_ID}/identity/users`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${NETLIFY_PAT}`,
-        },
-        body: JSON.stringify({ email, send_invite: true }),
-      }
-    );
-
-    if (!inviteRes.ok) {
-      const err = await inviteRes.json().catch(() => ({}));
-      const msg = err.msg || err.message || "Einladung fehlgeschlagen";
-      return { statusCode: inviteRes.status, body: JSON.stringify({ error: msg }) };
-    }
-
+    const user = await admin.createUser({ email, password, confirm: true });
     return {
       statusCode: 200,
-      body: JSON.stringify({ success: true, message: `Einladung an ${email} gesendet` }),
+      body: JSON.stringify({ success: true, message: `Benutzer ${email} erstellt`, id: user.id }),
     };
   } catch (e) {
-    return { statusCode: 500, body: JSON.stringify({ error: "Einladung fehlgeschlagen: " + e.message }) };
+    return { statusCode: 500, body: JSON.stringify({ error: e.message || "Benutzer konnte nicht erstellt werden" }) };
   }
 };
