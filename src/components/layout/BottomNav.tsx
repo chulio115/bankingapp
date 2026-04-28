@@ -24,6 +24,11 @@ const icons: Record<string, (color: string) => ReactElement> = {
       <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
     </svg>
   ),
+  fuel: (c) => (
+    <svg width={ICON_SIZE} height={ICON_SIZE} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 22V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16" /><path d="M15 10h2a2 2 0 0 1 2 2v2a2 2 0 0 0 2 2v0" /><path d="M21 10V7l-2-2" /><rect x="6" y="8" width="6" height="5" rx="1" />
+    </svg>
+  ),
   settings: (c) => (
     <svg width={ICON_SIZE} height={ICON_SIZE} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
@@ -34,6 +39,7 @@ const icons: Record<string, (color: string) => ReactElement> = {
 const tabs = [
   { id: 'overview', label: 'Übersicht' },
   { id: 'positions', label: 'Positionen' },
+  { id: 'fuel', label: 'Tanken' },
   { id: 'debts', label: 'Schulden' },
   { id: 'settings', label: 'Einstell.' },
 ];
@@ -44,7 +50,7 @@ export default function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
       className="glass nav-bottom-safe"
       style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 40, borderTop: '1px solid rgba(255,255,255,0.06)' }}
     >
-      <div style={{ maxWidth: 430, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', paddingTop: 8 }}>
+      <div style={{ maxWidth: 430, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', paddingTop: 8 }}>
         {tabs.map((tab) => {
           const active = activeTab === tab.id;
           const color = active ? '#b8b2f0' : '#555577';

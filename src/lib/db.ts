@@ -1,9 +1,10 @@
 import { sql, hasNeon, connectionString } from './neon';
-import type { Income, Expense, CategoryConfig } from '../types/finance';
+import type { Income, Expense, CategoryConfig, FuelEntry } from '../types/finance';
 
 interface DBIncome { id: string; name: string; amount: string; month: string; is_recurring: boolean | null; notes: string | null; }
 interface DBExpense { id: string; name: string; amount: string; category_id: string | null; month: string; is_recurring: boolean; notes: string | null; debt_details: string | null; }
 interface DBCategory { id: string; label: string; bg_color: string; text_color: string; dot_color: string; }
+interface DBFuelEntry { id: string; date: string; price_per_liter: string; liters: string; total_amount: string; odometer: number | null; is_full_tank: boolean; station_name: string | null; expense_id: string | null; month: string; }
 
 type LocalData = { incomes: Income[]; expenses: Expense[]; categories: CategoryConfig[] };
 const emptyData = (): LocalData => ({ incomes: [], expenses: [], categories: [] });
@@ -128,5 +129,50 @@ export async function addCategory(userId: string, category: CategoryConfig) {
     console.log('[DB] addCategory success');
   } catch (e) {
     console.error('[DB] addCategory error:', e);
+  }
+}
+
+// --- Fuel Entries ---
+
+export async function loadFuelEntries(userId: string): Promise<FuelEntry[]> {
+  if (!sql) return [];
+  try {
+    const rows = await sql`SELECT * FROM fuel_entries WHERE user_id = ${userId} ORDER BY date DESC`;
+    return (rows as DBFuelEntry[]).map((r): FuelEntry => ({
+      id: r.id,
+      date: r.date,
+      pricePerLiter: parseFloat(r.price_per_liter),
+      liters: parseFloat(r.liters),
+      totalAmount: parseFloat(r.total_amount),
+      odometer: r.odometer || undefined,
+      isFullTank: r.is_full_tank,
+      stationName: r.station_name || undefined,
+      expenseId: r.expense_id || undefined,
+      month: r.month,
+    }));
+  } catch (e) {
+    console.error('[DB] loadFuelEntries error:', e);
+    return [];
+  }
+}
+
+export async function addFuelEntry(userId: string, entry: FuelEntry) {
+  if (!sql) return;
+  try {
+    await sql`INSERT INTO fuel_entries (id, user_id, date, price_per_liter, liters, total_amount, odometer, is_full_tank, station_name, expense_id, month)
+      VALUES (${entry.id}, ${userId}, ${entry.date}, ${entry.pricePerLiter}, ${entry.liters}, ${entry.totalAmount}, ${entry.odometer || null}, ${entry.isFullTank}, ${entry.stationName || null}, ${entry.expenseId || null}, ${entry.month})`;
+    console.log('[DB] addFuelEntry success');
+  } catch (e) {
+    console.error('[DB] addFuelEntry error:', e);
+  }
+}
+
+export async function deleteFuelEntry(userId: string, id: string) {
+  if (!sql) return;
+  try {
+    await sql`DELETE FROM fuel_entries WHERE id = ${id} AND user_id = ${userId}`;
+    console.log('[DB] deleteFuelEntry success');
+  } catch (e) {
+    console.error('[DB] deleteFuelEntry error:', e);
   }
 }

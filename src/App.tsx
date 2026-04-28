@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import netlifyIdentity from 'netlify-identity-widget';
 import { useAuthStore } from './store/useAuthStore';
 import { useFinanceStore } from './store/useFinanceStore';
+import { useFuelStore } from './store/useFuelStore';
 import { ensureUser } from './lib/db';
 import BottomNav from './components/layout/BottomNav';
 import Overview from './screens/Overview/index';
 import Positions from './screens/Positions/index';
 import Debts from './screens/Debts/index';
 import Settings from './screens/Settings/index';
+import Fuel from './screens/Fuel/index';
 
 async function goTrueLogin(email: string, password: string) {
   const res = await fetch('/.netlify/identity/token', {
@@ -158,6 +160,7 @@ function LoginScreen({ onLogin }: { onLogin: (email: string, password: string) =
 function App() {
   const { user, setUser, isLoading, setLoading } = useAuthStore();
   const loadData = useFinanceStore((state) => state.loadData);
+  const loadFuelEntries = useFuelStore((state) => state.loadEntries);
   const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
@@ -170,7 +173,7 @@ function App() {
       };
       setUser(userData);
       ensureUser(existingUser.id, existingUser.email || '', userData.name)
-        .then(() => loadData(existingUser.id))
+        .then(() => Promise.all([loadData(existingUser.id), loadFuelEntries(existingUser.id)]))
         .then(() => setLoading(false))
         .catch((err) => {
           console.error('Error loading data for existing user:', err);
@@ -193,7 +196,7 @@ function App() {
       setUser(user);
       setLoading(true);
       await ensureUser(user.id, user.email, user.name);
-      await loadData(user.id);
+      await Promise.all([loadData(user.id), loadFuelEntries(user.id)]);
     } catch (err) {
       console.error('[App] Login error:', err);
       throw err;
@@ -223,6 +226,7 @@ function App() {
     <div className="app-shell">
       {activeTab === 'overview' && <Overview />}
       {activeTab === 'positions' && <Positions />}
+      {activeTab === 'fuel' && <Fuel />}
       {activeTab === 'debts' && <Debts />}
       {activeTab === 'settings' && <Settings />}
       <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
