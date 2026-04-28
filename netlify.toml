@@ -1,3 +1,14 @@
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    Clear-Site-Data = "\"storage\""
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Service-Worker-Allowed = "/"
+
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
