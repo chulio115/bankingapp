@@ -27,11 +27,11 @@ export default async (req: Request) => {
 
   // Use Netlify API (not GoTrue) to invite user — accepts Personal Access Token
   const NETLIFY_PAT = process.env.NETLIFY_PAT;
-  const SITE_ID = process.env.SITE_ID;
+  const SITE_ID = process.env.MY_SITE_ID;
 
   if (!NETLIFY_PAT || !SITE_ID) {
     return new Response(
-      JSON.stringify({ error: "NETLIFY_PAT und SITE_ID müssen als Environment Variables gesetzt sein." }),
+      JSON.stringify({ error: "NETLIFY_PAT und MY_SITE_ID müssen als Environment Variables gesetzt sein." }),
       { status: 500 }
     );
   }
