@@ -138,20 +138,97 @@ function LoginScreen({ onLogin }: { onLogin: (email: string, password: string) =
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0a0a1a', padding: 20, paddingTop: '20vh' }}>
-      <div style={{ maxWidth: 320, margin: '0 auto' }}>
-        <div style={{ marginBottom: 20 }}>
-          <label style={{ display: 'block', marginBottom: 5, color: '#e2e2ff' }}>Email</label>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={inputStyle} />
+    <div style={{ minHeight: '100vh', background: '#0a0a1a', padding: 20, paddingTop: '12vh', paddingBottom: 40 }}>
+      <div style={{ maxWidth: 360, margin: '0 auto' }}>
+        {/* Logo/Header */}
+        <div style={{ textAlign: 'center', marginBottom: 32 }}>
+          <div style={{ width: 56, height: 56, borderRadius: 16, background: 'linear-gradient(135deg, #7c6fe0 0%, #9b8ff0 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', boxShadow: '0 8px 24px rgba(124,111,224,0.3)' }}>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+            </svg>
+          </div>
+          <h1 style={{ fontSize: 24, fontWeight: 700, color: '#e2e2ff', marginBottom: 4, letterSpacing: '-0.01em' }}>Finanz-Tracker</h1>
+          <p style={{ fontSize: 13, color: '#555577' }}>Deine Finanzen im Griff</p>
         </div>
-        <div style={{ marginBottom: 20 }}>
-          <label style={{ display: 'block', marginBottom: 5, color: '#e2e2ff' }}>Passwort</label>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} style={inputStyle} />
+
+        {/* Login Form */}
+        <div style={{ background: '#141428', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16, padding: 24, marginBottom: 24 }}>
+          <div style={{ marginBottom: 16 }}>
+            <label style={{ display: 'block', marginBottom: 6, fontSize: 12, color: '#8888aa', fontWeight: 500 }}>Email</label>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="deine@email.de" style={{ ...inputStyle, marginBottom: 0 }} />
+          </div>
+          <div style={{ marginBottom: 16 }}>
+            <label style={{ display: 'block', marginBottom: 6, fontSize: 12, color: '#8888aa', fontWeight: 500 }}>Passwort</label>
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" style={{ ...inputStyle, marginBottom: 0 }} />
+          </div>
+          {error && <div style={{ color: '#F0997B', fontSize: 13, marginBottom: 12 }}>{error}</div>}
+          <button onClick={handleSubmit} disabled={loading || !email || !password} style={{ ...btnStyle(loading || !email || !password), background: 'linear-gradient(135deg, #7c6fe0 0%, #9b8ff0 100%)', boxShadow: '0 4px 16px rgba(124,111,224,0.3)' }}>
+            {loading ? 'Anmelden...' : 'Anmelden'}
+          </button>
         </div>
-        {error && <div style={{ color: '#F0997B', fontSize: 14, marginBottom: 15 }}>{error}</div>}
-        <button onClick={handleSubmit} disabled={loading || !email || !password} style={btnStyle(loading || !email || !password)}>
-          {loading ? 'Anmelden...' : 'Anmelden'}
-        </button>
+
+        {/* Features */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+            <div style={{ width: 32, height: 32, borderRadius: 10, background: 'rgba(93,202,165,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5DCAA5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
+              </svg>
+            </div>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: '#e2e2ff', marginBottom: 2 }}>Einfache Übersicht</div>
+              <div style={{ fontSize: 12, color: '#666688' }}>Alle Einnahmen & Ausgaben auf einen Blick</div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+            <div style={{ width: 32, height: 32, borderRadius: 10, background: 'rgba(124,111,224,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7c6fe0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+            </div>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: '#e2e2ff', marginBottom: 2 }}>Monatliche Planung</div>
+              <div style={{ fontSize: 12, color: '#666688' }}>Wiederkehrende Positionen automatisch</div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+            <div style={{ width: 32, height: 32, borderRadius: 10, background: 'rgba(240,153,123,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F0997B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+              </svg>
+            </div>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: '#e2e2ff', marginBottom: 2 }}>Schulden-Tracking</div>
+              <div style={{ fontSize: 12, color: '#666688' }}>Fortschritt & Schuldenfrei-Datum</div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+            <div style={{ width: 32, height: 32, borderRadius: 10, background: 'rgba(74,191,160,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ABFA0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 21v-8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v8" /><polyline points="3 10 12 3 21 10" />
+              </svg>
+            </div>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: '#e2e2ff', marginBottom: 2 }}>Privat & Sicher</div>
+              <div style={{ fontSize: 12, color: '#666688' }}>Nur für dich und deine Partner:in</div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+            <div style={{ width: 32, height: 32, borderRadius: 10, background: 'rgba(74,191,160,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ABFA0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 22v-8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v8" /><path d="M5 12V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v5" /><path d="M12 2v6" /><path d="M8 6l4-4 4 4" />
+              </svg>
+            </div>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: '#e2e2ff', marginBottom: 2 }}>Tanken-Tracking</div>
+              <div style={{ fontSize: 12, color: '#666688' }}>Tankquellen-OCR & Verbrauchs-Charts</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
