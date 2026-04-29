@@ -142,9 +142,39 @@ function LoginScreen({ onLogin }: { onLogin: (email: string, password: string) =
       <div style={{ maxWidth: 360, margin: '0 auto' }}>
         {/* Logo/Header */}
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <div style={{ width: 56, height: 56, borderRadius: 16, background: 'linear-gradient(135deg, #7c6fe0 0%, #9b8ff0 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', boxShadow: '0 8px 24px rgba(124,111,224,0.3)' }}>
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+          <div style={{ width: 80, height: 80, margin: '0 auto 16px' }}>
+            <svg width="80" height="80" viewBox="0 0 680 680">
+              <rect x="40" y="40" width="600" height="600" rx="128" fill="#18103A"/>
+              <rect x="432" y="208" width="44" height="130" rx="10" fill="#4A3BBF"/>
+              <polygon points="340,148 138,352 542,352" fill="#7C6BF0"/>
+              <polygon points="340,148 138,352 240,352" fill="#9D8FF5"/>
+              <rect x="170" y="338" width="340" height="252" rx="4" fill="#7C6BF0"/>
+              <rect x="170" y="338" width="340" height="30" fill="#9D8FF5" opacity="0.3"/>
+              <rect x="190" y="358" width="140" height="96" rx="12" fill="#2A1D6E"/>
+              <rect x="234" y="428" width="14" height="14" rx="3" fill="#9D8FF5"/>
+              <rect x="254" y="414" width="14" height="28" rx="3" fill="#B8ADFF"/>
+              <rect x="274" y="398" width="14" height="44" rx="3" fill="#DDD8FF"/>
+              <polyline points="241,428 261,414 281,398" fill="none" stroke="#FFD166" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+              <circle cx="241" cy="428" r="4" fill="#FFD166"/>
+              <circle cx="261" cy="414" r="4" fill="#FFD166"/>
+              <circle cx="281" cy="398" r="4" fill="#FFD166"/>
+              <rect x="350" y="358" width="140" height="96" rx="12" fill="#2A1D6E"/>
+              <text x="420" y="420" textAnchor="middle" fontFamily="system-ui,-apple-system,sans-serif" fontSize="54" fontWeight="500" fill="#DDD8FF">€</text>
+              <rect x="190" y="474" width="140" height="96" rx="12" fill="#2A1D6E"/>
+              <rect x="230" y="490" width="36" height="8" rx="4" fill="#DDD8FF"/>
+              <rect x="236" y="496" width="24" height="44" rx="4" fill="#DDD8FF"/>
+              <rect x="241" y="504" width="14" height="10" rx="2" fill="#2A1D6E"/>
+              <rect x="228" y="540" width="40" height="6" rx="3" fill="#B8ADFF"/>
+              <path d="M260,497 L278,497 L278,522" stroke="#DDD8FF" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+              <rect x="270" y="520" width="17" height="8" rx="4" fill="#DDD8FF"/>
+              <rect x="350" y="474" width="140" height="96" rx="12" fill="#2A1D6E"/>
+              <path d="M381,490 L381,506" stroke="#DDD8FF" strokeWidth="5" strokeLinecap="round" fill="none"/>
+              <rect x="378" y="504" width="68" height="30" rx="6" fill="#DDD8FF"/>
+              <circle cx="394" cy="542" r="7" fill="#DDD8FF"/>
+              <circle cx="432" cy="542" r="7" fill="#DDD8FF"/>
+              <circle cx="574" cy="112" r="9" fill="#FFD166"/>
+              <circle cx="600" cy="148" r="5.5" fill="#FFD166" opacity="0.7"/>
+              <circle cx="556" cy="150" r="4" fill="#FFD166" opacity="0.5"/>
             </svg>
           </div>
           <h1 style={{ fontSize: 24, fontWeight: 700, color: '#e2e2ff', marginBottom: 4, letterSpacing: '-0.01em' }}>Finanz-Tracker</h1>
@@ -286,8 +316,40 @@ function App() {
     return (
       <div className="min-h-screen bg-[#0a0a1a] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #141428 0%, #1a1a36 100%)' }}>
-            <span className="text-lg font-bold text-[#b8b2f0]">H</span>
+          <div className="w-16 h-16" style={{ margin: '0 auto' }}>
+            <svg width="64" height="64" viewBox="0 0 680 680">
+              <rect x="40" y="40" width="600" height="600" rx="128" fill="#18103A"/>
+              <rect x="432" y="208" width="44" height="130" rx="10" fill="#4A3BBF"/>
+              <polygon points="340,148 138,352 542,352" fill="#7C6BF0"/>
+              <polygon points="340,148 138,352 240,352" fill="#9D8FF5"/>
+              <rect x="170" y="338" width="340" height="252" rx="4" fill="#7C6BF0"/>
+              <rect x="170" y="338" width="340" height="30" fill="#9D8FF5" opacity="0.3"/>
+              <rect x="190" y="358" width="140" height="96" rx="12" fill="#2A1D6E"/>
+              <rect x="234" y="428" width="14" height="14" rx="3" fill="#9D8FF5"/>
+              <rect x="254" y="414" width="14" height="28" rx="3" fill="#B8ADFF"/>
+              <rect x="274" y="398" width="14" height="44" rx="3" fill="#DDD8FF"/>
+              <polyline points="241,428 261,414 281,398" fill="none" stroke="#FFD166" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+              <circle cx="241" cy="428" r="4" fill="#FFD166"/>
+              <circle cx="261" cy="414" r="4" fill="#FFD166"/>
+              <circle cx="281" cy="398" r="4" fill="#FFD166"/>
+              <rect x="350" y="358" width="140" height="96" rx="12" fill="#2A1D6E"/>
+              <text x="420" y="420" textAnchor="middle" fontFamily="system-ui,-apple-system,sans-serif" fontSize="54" fontWeight="500" fill="#DDD8FF">€</text>
+              <rect x="190" y="474" width="140" height="96" rx="12" fill="#2A1D6E"/>
+              <rect x="230" y="490" width="36" height="8" rx="4" fill="#DDD8FF"/>
+              <rect x="236" y="496" width="24" height="44" rx="4" fill="#DDD8FF"/>
+              <rect x="241" y="504" width="14" height="10" rx="2" fill="#2A1D6E"/>
+              <rect x="228" y="540" width="40" height="6" rx="3" fill="#B8ADFF"/>
+              <path d="M260,497 L278,497 L278,522" stroke="#DDD8FF" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+              <rect x="270" y="520" width="17" height="8" rx="4" fill="#DDD8FF"/>
+              <rect x="350" y="474" width="140" height="96" rx="12" fill="#2A1D6E"/>
+              <path d="M381,490 L381,506" stroke="#DDD8FF" strokeWidth="5" strokeLinecap="round" fill="none"/>
+              <rect x="378" y="504" width="68" height="30" rx="6" fill="#DDD8FF"/>
+              <circle cx="394" cy="542" r="7" fill="#DDD8FF"/>
+              <circle cx="432" cy="542" r="7" fill="#DDD8FF"/>
+              <circle cx="574" cy="112" r="9" fill="#FFD166"/>
+              <circle cx="600" cy="148" r="5.5" fill="#FFD166" opacity="0.7"/>
+              <circle cx="556" cy="150" r="4" fill="#FFD166" opacity="0.5"/>
+            </svg>
           </div>
           <div className="text-[#555577] text-xs">Laden...</div>
         </div>
