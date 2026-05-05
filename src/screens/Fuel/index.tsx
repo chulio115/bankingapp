@@ -17,7 +17,8 @@ export default function Fuel() {
   const [showAdd, setShowAdd] = useState(false);
   const [ocrLoading, setOcrLoading] = useState(false);
   const [ocrError, setOcrError] = useState('');
-  const fileRef = useRef<HTMLInputElement>(null);
+  const cameraRef = useRef<HTMLInputElement>(null);
+  const uploadRef = useRef<HTMLInputElement>(null);
 
   // Form state
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -260,14 +261,23 @@ export default function Fuel() {
       {/* Add Modal */}
       <Modal isOpen={showAdd} onClose={() => setShowAdd(false)} title="Tankvorgang">
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          {/* Photo Upload */}
+          {/* Photo Upload / Camera */}
           <div>
-            <input ref={fileRef} type="file" accept="image/*" capture="environment" style={{ display: 'none' }}
-              onChange={(e) => { const f = e.target.files?.[0]; if (f) handlePhoto(f); }} />
-            <button onClick={() => fileRef.current?.click()} disabled={ocrLoading}
-              style={{ width: '100%', padding: 12, borderRadius: 10, border: '1px dashed rgba(93,202,165,0.3)', background: 'rgba(93,202,165,0.05)', color: '#5DCAA5', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
-              {ocrLoading ? 'Beleg wird gelesen...' : '📸 Tankbeleg fotografieren'}
-            </button>
+            <input ref={cameraRef} type="file" accept="image/*" capture="environment" style={{ display: 'none' }}
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) handlePhoto(f); e.target.value = ''; }} />
+            <input ref={uploadRef} type="file" accept="image/*" style={{ display: 'none' }}
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) handlePhoto(f); e.target.value = ''; }} />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+              <button onClick={() => cameraRef.current?.click()} disabled={ocrLoading}
+                style={{ padding: 12, borderRadius: 10, border: '1px dashed rgba(93,202,165,0.3)', background: 'rgba(93,202,165,0.05)', color: '#5DCAA5', fontSize: 13, fontWeight: 600, cursor: 'pointer', opacity: ocrLoading ? 0.6 : 1 }}>
+                📸 Foto aufnehmen
+              </button>
+              <button onClick={() => uploadRef.current?.click()} disabled={ocrLoading}
+                style={{ padding: 12, borderRadius: 10, border: '1px dashed rgba(93,202,165,0.3)', background: 'rgba(93,202,165,0.05)', color: '#5DCAA5', fontSize: 13, fontWeight: 600, cursor: 'pointer', opacity: ocrLoading ? 0.6 : 1 }}>
+                🖼️ Bild hochladen
+              </button>
+            </div>
+            {ocrLoading && <div style={{ fontSize: 12, color: '#5DCAA5', marginTop: 8, textAlign: 'center' }}>Beleg wird gelesen...</div>}
             {ocrError && <div style={{ fontSize: 12, color: '#F0997B', marginTop: 6 }}>{ocrError}</div>}
           </div>
 
