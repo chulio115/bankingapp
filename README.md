@@ -33,7 +33,18 @@ Eine persönliche Finanz-App als Progressive Web App mit Neon PostgreSQL Datenba
 3. Netlify: **Site Settings → Environment variables**
    - `VITE_NEON_DATABASE_URL` = dein Connection String
 
-### 3. App starten
+### 3. OCR-Service einrichten (optional, für Tankbeleg-Scan)
+
+Die Tank-Funktion kann Belege per Foto/Upload automatisch auslesen. Standardmäßig läuft das offline mit Tesseract.js (mäßige Qualität auf Zapfsäulen-Displays). Für bessere Erkennung kann **OCR.space** als Cloud-Backend genutzt werden.
+
+1. Kostenlosen API-Key holen: https://ocr.space/ocrapi/freekey (Free Tier: 25.000 Anfragen/Monat, keine Kreditkarte)
+2. In Netlify unter **Site settings → Environment variables** hinzufügen:
+   - `OCR_SPACE_API_KEY` = dein API-Key
+3. Re-Deploy auslösen
+
+Ohne diesen Key funktioniert die App weiterhin – sie fällt automatisch auf lokale Tesseract-OCR zurück.
+
+### 4. App starten
 
 ```bash
 npm install

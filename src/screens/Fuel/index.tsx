@@ -6,6 +6,7 @@ import { LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContai
 import Modal from '../../components/ui/Modal';
 import type { FuelEntry } from '../../types/finance';
 import { createWorker } from 'tesseract.js';
+import { cloudOcrFuel } from '../../utils/ocr';
 
 const cardStyle = { background: '#141428', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16, padding: '16px' };
 const labelStyle = { display: 'block' as const, fontSize: 11, color: '#555577', textTransform: 'uppercase' as const, letterSpacing: '0.1em', fontWeight: 500, marginBottom: 6 };
@@ -88,35 +89,79 @@ export default function Fuel() {
     setOcrLoading(true);
     setOcrError('');
     try {
-      const worker = await createWorker('deu');
-      const { data: { text } } = await worker.recognize(file);
-      await worker.terminate();
+      // Try cloud OCR first (better on digital displays + receipts).
+      // Fall back to local Tesseract if cloud is unavailable or returns empty.
+      let text = '';
+      try {
+        text = await cloudOcrFuel(file);
+      } catch (cloudErr) {
+        console.warn('[OCR] Cloud failed, falling back to Tesseract:', cloudErr);
+      }
+      if (!text || text.trim().length < 3) {
+        const worker = await createWorker('deu');
+        const result = await worker.recognize(file);
+        await worker.terminate();
+        text = result.data.text;
+      }
 
-      // Parse Preis/L: pattern like 1,729 or 1.729 followed by EUR/L or €/L
+      // 1) Label-basiert (funktioniert v.a. auf Quittungen)
       const priceMatch = text.match(/(\d[.,]\d{2,3})\s*(?:EUR\/L|€\/L|eur\/l)/i)
-        || text.match(/Preis\/L[:\s]*(\d[.,]\d{2,3})/i)
-        || text.match(/(\d[.,]\d{3})\s/);
-      if (priceMatch) setPricePerLiter(priceMatch[1].replace('.', ','));
-
-      // Parse Menge/Liter
+        || text.match(/Preis\/L[:\s]*(\d[.,]\d{2,3})/i);
       const literMatch = text.match(/(\d{1,3}[.,]\d{1,2})\s*(?:L(?:iter)?|l)\b/i)
         || text.match(/Menge[:\s]*(\d{1,3}[.,]\d{1,2})/i);
-      if (literMatch) setLiters(literMatch[1].replace('.', ','));
-
-      // Parse Gesamtbetrag: EUR followed by amount or SUMME/TOTAL
       const totalMatch = text.match(/(?:SUMME|TOTAL|Betrag|EUR)[:\s]*(\d{1,4}[.,]\d{2})/i)
         || text.match(/(\d{2,4}[.,]\d{2})\s*(?:EUR|€)/i);
-      if (totalMatch) setTotalAmount(totalMatch[1].replace('.', ','));
 
-      // Parse Tankstelle (first line often has station name)
+      let price = priceMatch ? parseFloat(priceMatch[1].replace(',', '.')) : NaN;
+      let lit = literMatch ? parseFloat(literMatch[1].replace(',', '.')) : NaN;
+      let total = totalMatch ? parseFloat(totalMatch[1].replace(',', '.')) : NaN;
+
+      // 2) Heuristik-Fallback (für Zapfsäulen-Fotos ohne Labels)
+      // Finde alle Dezimalzahlen, klassifiziere nach Wertebereich, validiere Preis*Liter≈Summe
+      if (isNaN(price) || isNaN(lit) || isNaN(total)) {
+        const allNums = [...text.matchAll(/(\d{1,4})[.,](\d{1,3})/g)].map((m) => ({
+          raw: `${m[1]}.${m[2]}`,
+          value: parseFloat(`${m[1]}.${m[2]}`),
+          decimals: m[2].length,
+        }));
+        // Dedupe identical values
+        const uniq = Array.from(new Map(allNums.map((n) => [n.raw, n])).values());
+
+        const priceCands = uniq.filter((n) => n.value >= 0.8 && n.value <= 3.5 && n.decimals === 3);
+        const literCands = uniq.filter((n) => n.value >= 3 && n.value <= 200 && n.decimals <= 2);
+        const totalCands = uniq.filter((n) => n.value >= 5 && n.value <= 500 && n.decimals === 2);
+
+        let bestErr = 0.05; // 5% Toleranz
+        let best: { p: number; l: number; t: number } | null = null;
+        for (const p of priceCands) {
+          for (const l of literCands) {
+            for (const t of totalCands) {
+              if (p.value === l.value || p.value === t.value || l.value === t.value) continue;
+              const err = Math.abs(p.value * l.value - t.value) / t.value;
+              if (err < bestErr) { bestErr = err; best = { p: p.value, l: l.value, t: t.value }; }
+            }
+          }
+        }
+        if (best) {
+          if (isNaN(price)) price = best.p;
+          if (isNaN(lit)) lit = best.l;
+          if (isNaN(total)) total = best.t;
+        }
+      }
+
+      if (!isNaN(price)) setPricePerLiter(price.toFixed(3).replace('.', ','));
+      if (!isNaN(lit)) setLiters(lit.toFixed(2).replace('.', ','));
+      if (!isNaN(total)) setTotalAmount(total.toFixed(2).replace('.', ','));
+
+      // Tankstelle (erste sinnvolle Zeile)
       const lines = text.split('\n').filter((l) => l.trim().length > 3);
       if (lines.length > 0) {
         const first = lines[0].trim();
         if (!/\d{4}/.test(first) && first.length < 50) setStationName(first);
       }
 
-      if (!priceMatch && !literMatch && !totalMatch) {
-        setOcrError('Konnte keine Tankdaten erkennen. Bitte manuell eintragen.');
+      if (isNaN(price) && isNaN(lit) && isNaN(total)) {
+        setOcrError('Keine Tankdaten erkannt. Tipp: Quittung statt Zapfsäule fotografieren – die Säulen-Anzeige ist für OCR schwer lesbar.');
       }
     } catch (e) {
       console.error('OCR error:', e);
@@ -277,6 +322,11 @@ export default function Fuel() {
                 🖼️ Bild hochladen
               </button>
             </div>
+            {!ocrLoading && !ocrError && (
+              <div style={{ fontSize: 11, color: '#555577', marginTop: 8, textAlign: 'center', lineHeight: 1.4 }}>
+                Quittungen funktionieren am besten – Zapfsäulen-Displays werden auch erkannt
+              </div>
+            )}
             {ocrLoading && <div style={{ fontSize: 12, color: '#5DCAA5', marginTop: 8, textAlign: 'center' }}>Beleg wird gelesen...</div>}
             {ocrError && <div style={{ fontSize: 12, color: '#F0997B', marginTop: 6 }}>{ocrError}</div>}
           </div>
